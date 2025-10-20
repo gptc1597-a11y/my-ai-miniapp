@@ -20,20 +20,23 @@ body {
     position: relative;
 }
 
-/* Кнопка выбора модели */
+/* Кнопка выбора модели (без черного квадрата) */
 .model-island {
-    position: fixed;
-    top: 1rem;
+    position: sticky;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--overlay);
+    background: rgba(30, 30, 30, 0.6); /* Полупрозрачная подложка */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
+    border: none; /* Убираем границу */
     border-radius: 20px;
     padding: 0.5rem 1rem;
     cursor: pointer;
     z-index: 200;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: none; /* Убираем тень */
 }
 
 .model-island span {
@@ -57,30 +60,34 @@ body {
     z-index: 201;
     display: none;
     min-width: 200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .model-menu.visible {
     display: block;
 }
 
+/* Пункты меню — только полупрозрачная подложка, без рамок */
 .model-menu-item {
     padding: 0.75rem 1rem;
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05); /* Полупрозрачная подложка */
     border-radius: 8px;
     margin: 0 0.5rem;
     transition: background 0.2s;
+    border: none; /* Убираем границу */
+    outline: none; /* Убираем фокус */
 }
 
 .model-menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1); /* Светлее при наведении */
 }
 
 /* Чат */
 .chat {
-    padding: 2rem 1rem 100px;
+    padding: 1rem 1rem 100px;
     height: 100vh;
     overflow-y: auto;
     display: flex;
@@ -94,6 +101,7 @@ body {
     color: rgba(255, 255, 255, 0.7);
     align-self: center;
     animation: fadeIn 0.5s ease;
+    margin-top: 2rem;
 }
 
 .greeting.hidden {
