@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-
-    <!-- Плавающая кнопка-островок -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>ИИ Ассистент</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Кнопка выбора модели -->
     <div class="model-island" id="modelIsland">
         <span id="currentModelLabel">GPT-5 Chat</span>
     </div>
-    <!-- Плавающая панель ввода -->
+
+    <!-- Основной чат -->
+    <div class="chat" id="chatContainer">
+        <div class="greeting" id="greeting">Чем я могу помочь?</div>
+    </div>
+
+    <!-- Панель ввода -->
     <div class="input-panel">
         <textarea id="query" placeholder="Хуйни запрос"></textarea>
         <button id="sendBtn">Отправить</button>

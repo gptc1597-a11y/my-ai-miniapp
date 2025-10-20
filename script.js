@@ -1,22 +1,18 @@
 // Инициализация Telegram WebApp
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
+Telegram.WebApp.MainButton.hide();
 
-// DOM элементы
+// Элементы DOM
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
 const chatContainer = document.getElementById('chatContainer');
 const greeting = document.getElementById('greeting');
-const chatList = document.getElementById('chatList');
-const closeChatBtn = document.getElementById('closeChatBtn');
 const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
-// Данные пользователя
-const user = Telegram.WebApp.initDataUnsafe?.user;
-
 // Модели
-const modelMap = {
+const models = {
     "gpt-5-chat-latest": "GPT-5 Chat",
     "gpt-5-thinking-all": "GPT-5 Thinking",
     "gemini-2.5-pro": "Gemini 2.5 Pro",
@@ -33,7 +29,7 @@ let currentModel = "gpt-5-chat-latest";
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
-Object.entries(modelMap).forEach(([value, label]) => {
+Object.entries(models).forEach(([value, label]) => {
     const item = document.createElement('div');
     item.className = 'model-menu-item';
     item.textContent = label;
@@ -49,8 +45,9 @@ modelIsland.appendChild(modelMenu);
 
 // Переключение меню
 modelIsland.addEventListener('click', (e) => {
-    if (modelMenu.contains(e.target)) return;
-    modelMenu.classList.toggle('visible');
+    if (!modelMenu.contains(e.target)) {
+        modelMenu.classList.toggle('visible');
+    }
 });
 
 // Закрытие меню при клике вне
@@ -60,20 +57,10 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Открытие/закрытие списка чатов
-document.body.addEventListener('click', (e) => {
-    if (e.target.classList.contains('menu-btn')) {
-        chatList.classList.add('visible');
-    } else if (closeChatBtn.contains(e.target) || !chatList.contains(e.target)) {
-        chatList.classList.remove('visible');
-    }
-});
-
 // Добавление сообщения
 function addMessage(text, isUser = false) {
     const div = document.createElement('div');
-    div.classList.add('message');
-    if (isUser) div.classList.add('user');
+    div.className = `message${isUser ? ' user' : ''}`;
     div.textContent = text;
     chatContainer.appendChild(div);
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -84,18 +71,18 @@ async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
 
-    // Убираем приветствие после первого запроса
+    // Скрываем приветствие
     greeting.classList.add('hidden');
 
-    // Добавляем запрос пользователя (справа)
+    // Запрос пользователя
     addMessage(query, true);
     queryInput.value = '';
 
-    // Показываем индикатор загрузки (слева)
-    const loadingDiv = document.createElement('div');
-    loadingDiv.classList.add('message');
-    loadingDiv.textContent = '⏳ Обработка...';
-    chatContainer.appendChild(loadingDiv);
+    // Индикатор загрузки
+    const loading = document.createElement('div');
+    loading.className = 'message';
+    loading.textContent = '⏳ Обработка...';
+    chatContainer.appendChild(loading);
 
     try {
         const res = await fetch('https://my-ai-miniapp.onrender.com/api/ask', {
@@ -104,21 +91,20 @@ async function sendRequest() {
             body: JSON.stringify({
                 model: currentModel,
                 query,
-                user_id: user?.id || 'anonymous'
+                user_id: Telegram.WebApp.initDataUnsafe?.user?.id || 'anonymous'
             })
         });
 
         const data = await res.json();
-        chatContainer.removeChild(loadingDiv); // удаляем "Обработка..."
+        chatContainer.removeChild(loading);
 
         if (res.ok) {
-            // Добавляем ответ бота (слева)
             addMessage(data.answer || 'Пустой ответ');
         } else {
             addMessage(`❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`);
         }
     } catch (e) {
-        chatContainer.removeChild(loadingDiv);
+        chatContainer.removeChild(loading);
         addMessage(`❌ Ошибка подключения: ${e.message}`);
     }
 }
@@ -131,6 +117,3 @@ queryInput.addEventListener('keypress', (e) => {
         sendRequest();
     }
 });
-
-// Скрываем кнопку Telegram MainButton
-Telegram.WebApp.MainButton.hide();
