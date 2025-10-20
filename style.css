@@ -20,13 +20,13 @@ body {
     position: relative;
 }
 
-/* Кнопка выбора модели — центрируем через margin */
+/* Кнопка выбора модели */
 .model-island {
     position: sticky;
     top: 0;
     display: block;
     width: fit-content;
-    margin: 1rem auto; /* Центрируем по горизонтали */
+    margin: 1rem auto;
     background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -43,7 +43,7 @@ body {
     font-weight: 500;
 }
 
-/* Меню выбора моделей — открывается строго под кнопкой */
+/* Меню выбора моделей — без эффектов, только полупрозрачная подложка */
 .model-menu {
     position: absolute;
     top: 100%;
@@ -52,29 +52,29 @@ body {
     background: rgba(30, 30, 30, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 12px;
     margin-top: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 0;
     z-index: 201;
     display: none;
     min-width: 200px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 .model-menu.visible {
     display: block;
 }
 
-/* Пункты меню — только полупрозрачная подложка, без рамок */
+/* Пункты меню — только полупрозрачная подложка и текст */
 .model-menu-item {
     padding: 0.75rem 1rem;
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
     background: rgba(255, 255, 255, 0.05); /* Полупрозрачная подложка */
-    border-radius: 8px;
-    margin: 0 0.5rem;
+    border-radius: 0; /* Без закруглений */
+    margin: 0;
     transition: background 0.2s;
     border: none;
     outline: none;
