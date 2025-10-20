@@ -27,7 +27,7 @@ async function sendRequest() {
       user_id: user?.id || 'anonymous'
     };
 
-    const res = await fetch('https://https://my-ai-miniapp.onrender.com/api/ask', {
+    const res = await fetch('https://my-ai-miniapp.onrender.com/api/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
