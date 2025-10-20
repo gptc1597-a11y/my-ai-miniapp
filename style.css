@@ -24,22 +24,22 @@ body {
 /* Кнопка выбора модели */
 .model-island {
     position: sticky;
-    top: 0.75rem;
+    top: calc(0.5rem + env(safe-area-inset-top));
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    width: auto;
+    width: fit-content;
     margin: 0 auto;
-    padding: 0.85rem 1.75rem;
-    background: rgba(30, 30, 30, 0.12);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    padding: 1.1rem 2.4rem;
+    background: rgba(30, 30, 30, 0.16);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 999px;
     cursor: pointer;
     z-index: 200;
-    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
     transform: translateY(0);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -48,7 +48,7 @@ body {
     font-size: 1rem;
     font-weight: 700;
     display: inline-block;
-    padding: 0.35rem 1rem;
+    padding: 0.45rem 1.2rem;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 999px;
     backdrop-filter: blur(14px);
@@ -57,7 +57,7 @@ body {
 
 .model-island:hover {
     transform: translateY(-2px);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 26px 55px rgba(0, 0, 0, 0.25);
 }
 
 /* Меню выбора моделей — без эффектов, только полупрозрачная подложка */
@@ -92,19 +92,20 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    background: rgba(255, 255, 255, 0.22); /* еще менее прозрачная */
+    background: rgba(30, 30, 30, 0.18); /* эффект как у островка */
     border-radius: 12px;
     margin: 0;
     transition: background 0.2s;
     border: none;
     outline: none;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
 }
 
 .model-menu-item:hover {
-    background: rgba(255, 255, 255, 0.3); /* Светлее при наведении */
+    background: rgba(30, 30, 30, 0.24); /* Светлее при наведении */
 }
 
 /* Чат */
