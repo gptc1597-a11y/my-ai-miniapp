@@ -43,9 +43,11 @@ body {
     font-size: 0.9rem;
     font-weight: 700;
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
+    padding: 0.4rem 1rem; /* больше плашка */
+    background: rgba(255, 255, 255, 0.2); /* менее прозрачная */
+    border-radius: 12px; /* такая же форма как у пунктов */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 /* Меню выбора моделей — без эффектов, только полупрозрачная подложка */
@@ -77,16 +79,18 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    background: rgba(255, 255, 255, 0.12); /* Менее прозрачная подложка */
+    background: rgba(255, 255, 255, 0.22); /* еще менее прозрачная */
     border-radius: 12px;
     margin: 0.25rem 0;
     transition: background 0.2s;
     border: none;
     outline: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .model-menu-item:hover {
-    background: rgba(255, 255, 255, 0.18); /* Светлее при наведении */
+    background: rgba(255, 255, 255, 0.3); /* Светлее при наведении */
 }
 
 /* Чат */
