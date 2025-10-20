@@ -3,7 +3,6 @@
     --text-color: #ffffff;
     --card-bg: rgba(30, 30, 30, 0.8);
     --border-color: rgba(255, 255, 255, 0.2);
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     --button-hover: rgba(255, 255, 255, 0.05);
 }
 
@@ -21,42 +20,30 @@ body {
     background-color: var(--bg-color);
     overflow-x: hidden;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.container {
-    flex-grow: 1;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    overflow: hidden;
 }
 
-/* Стили списка чатов */
+/* Список чатов */
 .chat-list {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 280px;
+    height: 100%;
     background: var(--card-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    border-radius: 0 12px 12px 0;
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
     z-index: 100;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
 }
 
-.chat-list.hidden {
-    transform: translateX(-100%);
+.chat-list.visible {
+    transform: translateX(0);
 }
 
 .chat-header {
@@ -73,8 +60,7 @@ body {
     font-weight: 600;
 }
 
-.close-btn,
-.menu-btn {
+.close-btn {
     background: none;
     border: none;
     font-size: 1.2rem;
@@ -82,11 +68,9 @@ body {
     color: var(--text-color);
     padding: 0.5rem;
     border-radius: 50%;
-    transition: background 0.2s;
 }
 
-.close-btn:hover,
-.menu-btn:hover {
+.close-btn:hover {
     background: var(--button-hover);
 }
 
@@ -102,9 +86,6 @@ body {
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
 .chat-item:hover {
@@ -116,10 +97,6 @@ body {
     color: black;
 }
 
-.chat-item span {
-    flex-grow: 1;
-}
-
 .new-chat-btn {
     background: var(--text-color);
     color: black;
@@ -129,48 +106,45 @@ body {
     cursor: pointer;
     font-weight: 600;
     margin: 1rem;
-    transition: background 0.2s;
 }
 
-.new-chat-btn:hover {
-    background: #e0e0e0;
-}
-
-/* Основной контент — сообщения */
+/* Основной контент */
 .main-content {
-    flex-grow: 1;
-    padding: 1rem;
+    padding: 2rem 1rem 100px; /* Отступ снизу под панель ввода */
     overflow-y: auto;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding-bottom: 80px; /* Отступ под панель ввода */
 }
 
-.main-content h2 {
+/* Приветствие */
+.greeting {
+    text-align: center;
     font-size: 1.5rem;
     margin-bottom: 1rem;
-}
-
-.main-content p {
-    font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 1rem;
+    animation: fadeIn 0.5s ease;
 }
 
+.greeting.hidden {
+    display: none;
+}
+
+/* Сообщения */
 .message {
     max-width: 80%;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-radius: 12px;
     word-wrap: break-word;
-    animation: fadeIn 0.3s ease;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
     align-self: flex-start;
-    margin-bottom: 0.5rem;
+    display: inline-block;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .message.user {
@@ -180,7 +154,7 @@ body {
     border-bottom-right-radius: 4px;
 }
 
-/* Плавающая панель ввода (как в ChatGPT) */
+/* Плавающая панель ввода */
 .input-panel {
     position: fixed;
     bottom: 0;
@@ -195,7 +169,6 @@ body {
     gap: 0.5rem;
     align-items: center;
     z-index: 1000;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .input-panel textarea {
@@ -208,7 +181,6 @@ body {
     min-height: 40px;
     max-height: 120px;
     overflow-y: auto;
-    transition: border 0.2s;
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-color);
     font-family: inherit;
@@ -228,67 +200,66 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.2s;
 }
 
-.input-panel button:hover {
-    background: #e0e0e0;
-}
-
-.input-panel button:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
-}
-
-/* Верхняя панель с кнопками (как в ChatGPT) */
-.top-bar {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: rgba(30, 30, 30, 0.6);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.top-bar button {
-    background: rgba(255, 255, 255, 0.05);
+/* Плавающая кнопка-островок */
+.model-island {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 0.5rem 1rem;
     border-radius: 20px;
+    padding: 0.5rem 1rem;
     cursor: pointer;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.model-island span {
+    font-size: 0.9rem;
     font-weight: 500;
-    transition: background 0.2s, border 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-.top-bar button:hover {
-    background: var(--button-hover);
-    border-color: var(--text-color);
+/* Меню выбора модели */
+.model-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 30, 30, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+    z-index: 201;
+    display: none;
+    min-width: 200px;
 }
 
-.icon-menu::before {
-    content: "≡";
-    font-size: 1.2rem;
+.model-menu.visible {
+    display: block;
 }
 
-.icon-plus::before {
-    content: "+";
-    font-size: 1.2rem;
+.model-menu-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: white;
+    transition: background 0.2s;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin: 0 0.5rem;
 }
 
-.icon-mic::before {
-    content: "🎤";
-    font-size: 1.2rem;
-}
-
-.icon-wave::before {
-    content: "🔊";
-    font-size: 1.2rem;
+.model-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Анимации */
@@ -305,25 +276,8 @@ body {
 
 /* Для мобильных устройств */
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
     .chat-list {
         width: 100%;
-        transform: translateX(-100%);
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 1000;
-    }
-
-    .chat-list.visible {
-        transform: translateX(0);
-    }
-
-    .main-content {
-        padding-bottom: 100px; /* Больше отступа под панель ввода на мобильных */
+        border-radius: 0;
     }
 }

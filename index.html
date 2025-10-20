@@ -8,38 +8,34 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Список чатов (скрытый по умолчанию) -->
-        <aside class="chat-list" id="chatList">
-            <div class="chat-header">
-                <h3>Чаты</h3>
-                <button class="close-btn" id="closeChatBtn">✕</button>
+    <!-- Список чатов -->
+    <aside class="chat-list" id="chatList">
+        <div class="chat-header">
+            <h3>Чаты</h3>
+            <button class="close-btn" id="closeChatBtn">✕</button>
+        </div>
+        <div class="chat-items">
+            <div class="chat-item active">
+                <span>Новый чат</span>
             </div>
-            <div class="chat-items">
-                <div class="chat-item active">
-                    <span>Новый чат</span>
-                </div>
-            </div>
-            <button class="new-chat-btn">+ Новый чат</button>
-        </aside>
-
-        <!-- Основной контент -->
-        <div class="main-content" id="chatContainer">
-            <h2>Чем я могу помочь?</h2>
         </div>
+        <button class="new-chat-btn">+ Новый чат</button>
+    </aside>
 
-        <!-- Плавающая панель ввода -->
-        <div class="input-panel">
-            <textarea id="query" placeholder="Хуйни запрос"></textarea>
-            <button id="sendBtn">Отправить</button>
-        </div>
+    <!-- Плавающая кнопка-островок -->
+    <div class="model-island" id="modelIsland">
+        <span id="currentModelLabel">GPT-5 Chat</span>
+    </div>
 
-        <!-- Верхняя панель с кнопками -->
-        <div class="top-bar">
-            <button class="menu-btn" id="openChatBtn">☰</button>
-            <button id="modelBtn">ChatGPT</button>
-            <button id="plusBtn">+</button>
-        </div>
+    <!-- Основной контент -->
+    <div class="main-content" id="chatContainer">
+        <div class="greeting" id="greeting">Чем я могу помочь?</div>
+    </div>
+
+    <!-- Плавающая панель ввода -->
+    <div class="input-panel">
+        <textarea id="query" placeholder="Хуйни запрос"></textarea>
+        <button id="sendBtn">Отправить</button>
     </div>
 
     <script src="script.js"></script>
