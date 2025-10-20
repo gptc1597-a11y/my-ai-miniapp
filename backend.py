@@ -9,7 +9,12 @@ app = FastAPI()
 # Разрешаем запросы из Mini App
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://gptc1597-a11y.github.io", # Твой фронтенд
+        "https://my-ai-miniapp.onrender.com", # Сам бэкенд (на всякий случай)
+        "https://telegram.org", # Для Telegram WebApp (иногда нужно)
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
