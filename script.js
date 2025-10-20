@@ -50,7 +50,8 @@ modelIsland.addEventListener('click', (e) => {
         // Принудительно обновляем позицию меню
         setTimeout(() => {
             const rect = modelIsland.getBoundingClientRect();
-            modelMenu.style.top = `${rect.height + 10}px`;
+            modelMenu.style.top = 'auto';
+            modelMenu.style.bottom = `${rect.height + 12}px`;
             modelMenu.style.left = '50%';
             modelMenu.style.transform = 'translateX(-50%)';
         }, 0);

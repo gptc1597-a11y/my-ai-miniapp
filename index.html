@@ -8,11 +8,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <!-- Кнопка выбора модели -->
-    <div class="model-island" id="modelIsland">
-        <span id="currentModelLabel">GPT-5 Chat</span>
-    </div>
-
     <!-- Основной чат -->
     <div class="chat" id="chatContainer">
         <div class="greeting" id="greeting">Чем я могу помочь?</div>
@@ -20,6 +15,9 @@
 
     <!-- Панель ввода -->
     <div class="input-panel">
+        <div class="model-island" id="modelIsland">
+            <span id="currentModelLabel">GPT-5 Chat</span>
+        </div>
         <textarea id="query" placeholder="Хуйни запрос"></textarea>
         <button id="sendBtn">Отправить</button>
     </div>
