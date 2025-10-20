@@ -20,14 +20,19 @@
 body {
     background-color: var(--bg-color);
     overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
+    flex-grow: 1;
+    position: relative;
     display: flex;
-    height: 100vh;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    overflow: hidden;
 }
 
 /* Стили списка чатов */
@@ -43,7 +48,11 @@ body {
     flex-direction: column;
     transition: transform 0.3s ease;
     z-index: 100;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100%;
 }
 
 .chat-list.hidden {
@@ -56,7 +65,7 @@ body {
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(30, 30, 30, 0.6); /* Полупрозрачный фон */
+    background: rgba(30, 30, 30, 0.6);
 }
 
 .chat-header h3 {
@@ -127,76 +136,8 @@ body {
     background: #e0e0e0;
 }
 
-/* Стили основного окна чата */
-.chat-main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    position: relative;
-}
-
-.chat-main .chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    background: rgba(30, 30, 30, 0.6);
-}
-
-.chat-main .chat-header h1 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.model-selector {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    background: rgba(30, 30, 30, 0.4);
-}
-
-.model-selector label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    visibility: hidden; /* Скрываем надпись "Выберите модель:" */
-    height: 0;
-    overflow: hidden;
-}
-
-.model-selector select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-color);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: border 0.2s;
-    box-shadow: none;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
-
-.model-selector select:focus {
-    outline: none;
-    border-color: var(--text-color);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-}
-
-.chat-container {
+/* Основной контент — сообщения */
+.main-content {
     flex-grow: 1;
     padding: 1rem;
     overflow-y: auto;
@@ -206,69 +147,130 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
+    padding-bottom: 80px; /* Отступ под панель ввода */
 }
 
-.chat-container h2 {
+.main-content h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
 }
 
-.chat-container p {
+.main-content p {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 1rem;
 }
 
-.input-area {
-    display: flex;
-    gap: 0.5rem;
+.message {
+    max-width: 80%;
     padding: 1rem;
-    border-top: 1px solid var(--border-color);
-    background: rgba(30, 30, 30, 0.6);
+    border-radius: 12px;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
 }
 
-.input-area textarea {
+.message.user {
+    align-self: flex-end;
+    background: var(--text-color);
+    color: black;
+    border-bottom-right-radius: 4px;
+}
+
+/* Плавающая панель ввода (как в ChatGPT) */
+.input-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.input-panel textarea {
     flex-grow: 1;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 20px;
     resize: none;
     font-size: 1rem;
-    min-height: 60px;
+    min-height: 40px;
+    max-height: 120px;
+    overflow-y: auto;
     transition: border 0.2s;
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-color);
     font-family: inherit;
 }
 
-.input-area textarea:focus {
+.input-panel textarea:focus {
     outline: none;
     border-color: var(--text-color);
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
-.input-area button {
+.input-panel button {
     background: var(--text-color);
     color: black;
     border: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
     transition: background 0.2s;
-    min-width: 100px;
 }
 
-.input-area button:hover {
+.input-panel button:hover {
     background: #e0e0e0;
 }
 
-.input-area button:disabled {
+.input-panel button:disabled {
     background: #cccccc;
     cursor: not-allowed;
 }
 
-/* Иконки монограммы */
+/* Верхняя панель с кнопками (как в ChatGPT) */
+.top-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 30, 30, 0.6);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.top-bar button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, border 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top-bar button:hover {
+    background: var(--button-hover);
+    border-color: var(--text-color);
+}
+
 .icon-menu::before {
     content: "≡";
     font-size: 1.2rem;
@@ -321,7 +323,7 @@ body {
         transform: translateX(0);
     }
 
-    .chat-main {
-        margin-top: 1rem;
+    .main-content {
+        padding-bottom: 100px; /* Больше отступа под панель ввода на мобильных */
     }
 }

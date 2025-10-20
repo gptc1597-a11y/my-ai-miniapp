@@ -6,17 +6,35 @@ Telegram.WebApp.expand();
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
 const chatContainer = document.getElementById('chatContainer');
-const modelSelect = document.getElementById('model');
+const modelBtn = document.getElementById('modelBtn');
 const chatList = document.getElementById('chatList');
 const openChatBtn = document.getElementById('openChatBtn');
 const closeChatBtn = document.getElementById('closeChatBtn');
+const plusBtn = document.getElementById('plusBtn');
 
 // Получаем данные пользователя (опционально)
 const user = Telegram.WebApp.initDataUnsafe?.user;
 
+// Текущая модель
+let currentModel = "gpt-5-chat-latest";
+
+// Функция для добавления сообщения в чат
+function addMessage(text, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+    if (isUser) {
+        messageDiv.classList.add('user');
+    } else {
+        messageDiv.classList.add('bot');
+    }
+    messageDiv.textContent = text;
+    chatContainer.appendChild(messageDiv);
+    // Прокручиваем вниз
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
 // Функция для отправки запроса
 async function sendRequest() {
-    const model = modelSelect.value;
     const query = queryInput.value.trim();
 
     if (!query) {
@@ -24,18 +42,21 @@ async function sendRequest() {
         return;
     }
 
-    // Очищаем приветствие
-    chatContainer.innerHTML = '';
+    // Убираем приветствие "Чем я могу помочь?"
+    if (chatContainer.children.length === 1 && chatContainer.firstElementChild.tagName === 'H2') {
+        chatContainer.innerHTML = '';
+    }
+
+    // Добавляем сообщение пользователя
+    addMessage(query, true);
 
     sendBtn.disabled = true;
     // Показываем индикатор загрузки
-    const loadingDiv = document.createElement('div');
-    loadingDiv.textContent = '⏳ Обработка...';
-    chatContainer.appendChild(loadingDiv);
+    addMessage('⏳ Обработка...', false);
 
     try {
         const payload = {
-            model: model,
+            model: currentModel,
             query: query,
             user_id: user?.id || 'anonymous'
         };
@@ -50,36 +71,18 @@ async function sendRequest() {
 
         if (res.ok) {
             // Удаляем предыдущее сообщение "Обработка..."
-            chatContainer.removeChild(loadingDiv);
+            chatContainer.lastChild.remove();
             // Добавляем ответ бота
-            const responseDiv = document.createElement('div');
-            responseDiv.style.padding = '1rem';
-            responseDiv.style.borderRadius = '8px';
-            responseDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-            responseDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            responseDiv.textContent = data.answer || 'Пустой ответ';
-            chatContainer.appendChild(responseDiv);
+            addMessage(data.answer || 'Пустой ответ', false);
         } else {
             // Удаляем предыдущее сообщение "Обработка..."
-            chatContainer.removeChild(loadingDiv);
-            const errorDiv = document.createElement('div');
-            errorDiv.style.padding = '1rem';
-            errorDiv.style.borderRadius = '8px';
-            errorDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-            errorDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            errorDiv.textContent = `❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`;
-            chatContainer.appendChild(errorDiv);
+            chatContainer.lastChild.remove();
+            addMessage(`❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`, false);
         }
     } catch (e) {
         // Удаляем предыдущее сообщение "Обработка..."
-        chatContainer.removeChild(loadingDiv);
-        const errorDiv = document.createElement('div');
-        errorDiv.style.padding = '1rem';
-        errorDiv.style.borderRadius = '8px';
-        errorDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-        errorDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        errorDiv.textContent = `❌ Ошибка подключения: ${e.message}`;
-        chatContainer.appendChild(errorDiv);
+        chatContainer.lastChild.remove();
+        addMessage(`❌ Ошибка подключения: ${e.message}`, false);
     } finally {
         sendBtn.disabled = false;
         queryInput.value = '';
@@ -111,6 +114,39 @@ closeChatBtn.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
         chatList.classList.remove('visible');
     }
+});
+
+// Логика для кнопки выбора модели
+modelBtn.addEventListener('click', () => {
+    const models = [
+        { value: "gpt-5-chat-latest", label: "ChatGPT" },
+        { value: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
+        { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+        { value: "grok-4-fast", label: "Grok-4 Fast" },
+        { value: "grok-4", label: "Grok-4" },
+        { value: "grok-3-reasoner", label: "Grok-3 Reasoner" },
+        { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" },
+        { value: "claude-sonnet-4-5-20250929-thinking", label: "Claude Sonnet (Thinking)" }
+    ];
+
+    const selected = prompt(
+        "Выберите модель:\n\n" +
+        models.map((m, i) => `${i + 1}. ${m.label}`).join("\n"),
+        "1"
+    );
+
+    if (selected && !isNaN(selected)) {
+        const index = parseInt(selected) - 1;
+        if (index >= 0 && index < models.length) {
+            currentModel = models[index].value;
+            modelBtn.textContent = models[index].label;
+        }
+    }
+});
+
+// Логика для кнопки "+"
+plusBtn.addEventListener('click', () => {
+    alert("Эта кнопка пока не реализована. Здесь можно добавить функции: создание изображений, работа с файлами и т.д.");
 });
 
 // Поддержка кнопки "Отправить" внизу экрана (Telegram MainButton)
