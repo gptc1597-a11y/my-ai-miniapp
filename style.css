@@ -27,45 +27,43 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    width: fit-content;
+    gap: 0.4rem;
+    width: auto;
     margin: 0;
-    padding: 0.7rem 1.6rem;
-    background: rgba(120, 120, 120, 0.18);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.55rem 1.25rem;
+    background: rgba(135, 135, 135, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     cursor: pointer;
     z-index: 200;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
     transform: translateY(0);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     flex-shrink: 0;
 }
 
 .model-island span {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     display: inline-block;
-    padding: 0.3rem 1rem;
-    background: rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    padding: 0;
+    background: transparent;
 }
 
 .model-island:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
 }
 
 /* Меню выбора моделей — без эффектов, только полупрозрачная подложка */
 .model-menu {
     position: absolute;
-    bottom: calc(100% + 0.75rem);
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: calc(100% + 0.6rem);
+    left: 0;
+    right: auto;
+    transform: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -76,6 +74,10 @@ body {
     z-index: 201;
     display: none;
     min-width: 220px;
+    width: max-content;
+    max-width: min(260px, calc(100vw - 2rem));
+    max-height: 60vh;
+    overflow-y: auto;
     box-shadow: none;
     flex-direction: column;
     gap: 0.35rem;
@@ -92,20 +94,20 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    background: rgba(120, 120, 120, 0.18); /* серый островок */
+    background: rgba(135, 135, 135, 0.22); /* серый островок */
     border-radius: 12px;
     margin: 0;
     transition: background 0.2s;
     border: none;
     outline: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
 }
 
 .model-menu-item:hover {
-    background: rgba(120, 120, 120, 0.24); /* Светлее при наведении */
+    background: rgba(135, 135, 135, 0.3); /* Светлее при наведении */
 }
 
 /* Чат */
@@ -163,23 +165,23 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-top: 1px solid var(--border);
-    padding: 0.75rem 1rem;
+    padding: 1rem;
     display: flex;
+    flex-direction: column;
     gap: 0.75rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
     z-index: 1000;
 }
 
 .input-panel textarea {
-    flex: 1 1 220px;
+    width: 100%;
+    flex: 1 1 auto;
     padding: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 20px;
-    resize: none;
+    resize: vertical;
     font-size: 1rem;
-    min-height: 40px;
-    max-height: 120px;
+    min-height: 48px;
+    max-height: 33vh;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.05);
     color: var(--text);
@@ -190,6 +192,18 @@ body {
     outline: none;
     border-color: #fff;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.input-actions button {
+    flex-shrink: 0;
 }
 
 .input-panel button {
