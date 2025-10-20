@@ -5,7 +5,6 @@ Telegram.WebApp.expand();
 // Элементы DOM
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
-const responseDiv = document.getElementById('response');
 const chatContainer = document.getElementById('chatContainer');
 const modelSelect = document.getElementById('model');
 const chatList = document.getElementById('chatList');
@@ -110,9 +109,8 @@ closeChatBtn.addEventListener('click', () => {
 });
 
 // Поддержка кнопки "Отправить" внизу экрана (Telegram MainButton)
-Telegram.WebApp.MainButton.setText("Отправить");
-Telegram.WebApp.MainButton.show();
-Telegram.WebApp.MainButton.onClick(sendRequest);
+// Убираем дублирование, оставляем только одну кнопку
+Telegram.WebApp.MainButton.hide(); // Скрываем главную кнопку Telegram, чтобы не было дубля
 
 // Делаем так, чтобы при клике вне списка чатов он закрывался (для мобильных)
 document.addEventListener('click', (e) => {

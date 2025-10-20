@@ -1,11 +1,11 @@
-:root {
-    --primary-color: #6c63ff;
-    --secondary-color: #4a40b7;
-    --bg-color: #f5f5f7;
-    --text-color: #1e1e1e;
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --border-color: rgba(0, 0, 0, 0.1);
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+::root {
+    --primary-color: #ffffff;
+    --secondary-color: #f0f0f0;
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --card-bg: rgba(30, 30, 30, 0.8);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -56,7 +56,7 @@ body {
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(30, 30, 30, 0.6);
 }
 
 .chat-header h3 {
@@ -78,7 +78,7 @@ body {
 
 .close-btn:hover,
 .menu-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .chat-items {
@@ -99,12 +99,12 @@ body {
 }
 
 .chat-item:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .chat-item.active {
     background: var(--primary-color);
-    color: white;
+    color: black;
 }
 
 .chat-item span {
@@ -113,7 +113,7 @@ body {
 
 .new-chat-btn {
     background: var(--primary-color);
-    color: white;
+    color: black;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -148,7 +148,7 @@ body {
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(30, 30, 30, 0.6);
 }
 
 .chat-main .chat-header h1 {
@@ -162,7 +162,7 @@ body {
 .model-selector {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(30, 30, 30, 0.4);
 }
 
 .model-selector label {
@@ -176,16 +176,19 @@ body {
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: white;
+    background: rgba(255, 255, 255, 0.05); /* Прозрачный фон */
+    color: var(--text-color);
     font-size: 1rem;
     cursor: pointer;
     transition: border 0.2s;
+    /* Убираем тень */
+    box-shadow: none;
 }
 
 .model-selector select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .chat-container {
@@ -208,13 +211,13 @@ body {
 .message.user {
     align-self: flex-end;
     background: var(--primary-color);
-    color: white;
+    color: black;
     border-bottom-right-radius: 4px;
 }
 
 .message.bot {
     align-self: flex-start;
-    background: white;
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
     border-bottom-left-radius: 4px;
 }
@@ -224,7 +227,7 @@ body {
     gap: 0.5rem;
     padding: 1rem;
     border-top: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(30, 30, 30, 0.6);
 }
 
 .input-area textarea {
@@ -236,17 +239,19 @@ body {
     font-size: 1rem;
     min-height: 60px;
     transition: border 0.2s;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
 }
 
 .input-area textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .input-area button {
     background: var(--primary-color);
-    color: white;
+    color: black;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
