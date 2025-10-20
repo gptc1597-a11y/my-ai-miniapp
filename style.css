@@ -20,23 +20,23 @@ body {
     position: relative;
 }
 
-/* Кнопка выбора модели (без черного квадрата) */
+/* Кнопка выбора модели */
 .model-island {
     position: sticky;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(30, 30, 30, 0.6); /* Полупрозрачная подложка */
+    background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: none; /* Убираем границу */
+    border: none;
     border-radius: 20px;
     padding: 0.5rem 1rem;
     cursor: pointer;
     z-index: 200;
     margin-top: 1rem;
     margin-bottom: 1rem;
-    box-shadow: none; /* Убираем тень */
+    box-shadow: none;
 }
 
 .model-island span {
@@ -44,7 +44,7 @@ body {
     font-weight: 500;
 }
 
-/* Меню выбора модели */
+/* Меню выбора моделей */
 .model-menu {
     position: absolute;
     top: 100%;

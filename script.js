@@ -47,12 +47,17 @@ modelIsland.appendChild(modelMenu);
 modelIsland.addEventListener('click', (e) => {
     if (!modelMenu.contains(e.target)) {
         modelMenu.classList.toggle('visible');
+        // Принудительно обновляем позицию меню
+        setTimeout(() => {
+            const rect = modelIsland.getBoundingClientRect();
+            modelMenu.style.top = `${rect.height + 10}px`;
+        }, 0);
     }
 });
 
 // Закрытие меню при клике вне
 document.addEventListener('click', (e) => {
-    if (!modelIsland.contains(e.target)) {
+    if (!modelIsland.contains(e.target) && !modelMenu.contains(e.target)) {
         modelMenu.classList.remove('visible');
     }
 });
