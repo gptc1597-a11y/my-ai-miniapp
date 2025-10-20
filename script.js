@@ -14,21 +14,6 @@ const closeChatBtn = document.getElementById('closeChatBtn');
 // Получаем данные пользователя (опционально)
 const user = Telegram.WebApp.initDataUnsafe?.user;
 
-// Функция для добавления сообщения в чат
-function addMessage(text, isUser = false) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message');
-    if (isUser) {
-        messageDiv.classList.add('user');
-    } else {
-        messageDiv.classList.add('bot');
-    }
-    messageDiv.textContent = text;
-    chatContainer.appendChild(messageDiv);
-    // Прокручиваем вниз
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
 // Функция для отправки запроса
 async function sendRequest() {
     const model = modelSelect.value;
@@ -39,12 +24,14 @@ async function sendRequest() {
         return;
     }
 
-    // Добавляем сообщение пользователя
-    addMessage(query, true);
+    // Очищаем приветствие
+    chatContainer.innerHTML = '';
 
     sendBtn.disabled = true;
     // Показываем индикатор загрузки
-    addMessage('⏳ Обработка...', false);
+    const loadingDiv = document.createElement('div');
+    loadingDiv.textContent = '⏳ Обработка...';
+    chatContainer.appendChild(loadingDiv);
 
     try {
         const payload = {
@@ -63,18 +50,36 @@ async function sendRequest() {
 
         if (res.ok) {
             // Удаляем предыдущее сообщение "Обработка..."
-            chatContainer.lastChild.remove();
+            chatContainer.removeChild(loadingDiv);
             // Добавляем ответ бота
-            addMessage(data.answer || 'Пустой ответ', false);
+            const responseDiv = document.createElement('div');
+            responseDiv.style.padding = '1rem';
+            responseDiv.style.borderRadius = '8px';
+            responseDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            responseDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            responseDiv.textContent = data.answer || 'Пустой ответ';
+            chatContainer.appendChild(responseDiv);
         } else {
             // Удаляем предыдущее сообщение "Обработка..."
-            chatContainer.lastChild.remove();
-            addMessage(`❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`, false);
+            chatContainer.removeChild(loadingDiv);
+            const errorDiv = document.createElement('div');
+            errorDiv.style.padding = '1rem';
+            errorDiv.style.borderRadius = '8px';
+            errorDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            errorDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            errorDiv.textContent = `❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+            chatContainer.appendChild(errorDiv);
         }
     } catch (e) {
         // Удаляем предыдущее сообщение "Обработка..."
-        chatContainer.lastChild.remove();
-        addMessage(`❌ Ошибка подключения: ${e.message}`, false);
+        chatContainer.removeChild(loadingDiv);
+        const errorDiv = document.createElement('div');
+        errorDiv.style.padding = '1rem';
+        errorDiv.style.borderRadius = '8px';
+        errorDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        errorDiv.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+        errorDiv.textContent = `❌ Ошибка подключения: ${e.message}`;
+        chatContainer.appendChild(errorDiv);
     } finally {
         sendBtn.disabled = false;
         queryInput.value = '';
@@ -109,8 +114,7 @@ closeChatBtn.addEventListener('click', () => {
 });
 
 // Поддержка кнопки "Отправить" внизу экрана (Telegram MainButton)
-// Убираем дублирование, оставляем только одну кнопку
-Telegram.WebApp.MainButton.hide(); // Скрываем главную кнопку Telegram, чтобы не было дубля
+Telegram.WebApp.MainButton.hide(); // Скрываем главную кнопку Telegram
 
 // Делаем так, чтобы при клике вне списка чатов он закрывался (для мобильных)
 document.addEventListener('click', (e) => {

@@ -17,9 +17,8 @@
             </div>
             <div class="chat-items">
                 <div class="chat-item active">
-                    <span>💬 Новый чат</span>
+                    <span>Новый чат</span>
                 </div>
-                <!-- Здесь можно динамически добавлять чаты -->
             </div>
             <button class="new-chat-btn">+ Новый чат</button>
         </aside>
@@ -27,30 +26,41 @@
         <!-- Основное окно чата -->
         <main class="chat-main">
             <header class="chat-header">
-                <h1>🧠 ИИ Ассистент</h1>
+                <h1>ИИ Ассистент</h1>
                 <button class="menu-btn" id="openChatBtn">☰</button>
             </header>
 
             <div class="model-selector">
                 <label>Выберите модель:</label>
                 <select id="model">
-                    <option value="gpt-5-chat-latest">💬 GPT-5 Chat</option>
-                    <option value="gpt-5-thinking-all">🧠 GPT-5 Thinking</option>
-                    <option value="gemini-2.5-pro">⭐ Gemini 2.5 Pro</option>
-                    <option value="grok-4-fast">⚡ Grok-4 Fast</option>
-                    <option value="grok-4">🚀 Grok-4</option>
-                    <option value="grok-3-reasoner">🧩 Grok-3 Reasoner</option>
-                    <option value="claude-sonnet-4-5-20250929">📄 Claude Sonnet</option>
-                    <option value="claude-sonnet-4-5-20250929-thinking">💭 Claude Sonnet (Thinking)</option>
+                    <option value="gpt-5-chat-latest">GPT-5 Chat</option>
+                    <option value="gpt-5-thinking-all">GPT-5 Thinking</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="grok-4-fast">Grok-4 Fast</option>
+                    <option value="grok-4">Grok-4</option>
+                    <option value="grok-3-reasoner">Grok-3 Reasoner</option>
+                    <option value="claude-sonnet-4-5-20250929">Claude Sonnet</option>
+                    <option value="claude-sonnet-4-5-20250929-thinking">Claude Sonnet (Thinking)</option>
                 </select>
             </div>
 
             <div class="chat-container" id="chatContainer">
-                <!-- Сообщения будут отображаться здесь -->
+                <h2>Чем я могу помочь?</h2>
+                <div class="action-buttons">
+                    <button class="action-button">
+                        <span class="icon-menu"></span> Создать изображение
+                    </button>
+                    <button class="action-button">
+                        <span class="icon-plus"></span> Кратко изложи текст
+                    </button>
+                    <button class="action-button">
+                        <span class="icon-plus"></span> Больше
+                    </button>
+                </div>
             </div>
 
             <div class="input-area">
-                <textarea id="query" placeholder="Введите ваш запрос..."></textarea>
+                <textarea id="query" placeholder="Ask ChatGPT"></textarea>
                 <button id="sendBtn">Отправить</button>
             </div>
         </main>
