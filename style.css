@@ -230,12 +230,10 @@ body {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(30, 30, 30, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     margin-top: 0.5rem;
     padding: 0.5rem 0;
     z-index: 201;
@@ -252,8 +250,6 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    transition: background 0.2s;
-    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     margin: 0 0.5rem;
 }
