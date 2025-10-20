@@ -51,6 +51,8 @@ modelIsland.addEventListener('click', (e) => {
         setTimeout(() => {
             const rect = modelIsland.getBoundingClientRect();
             modelMenu.style.top = `${rect.height + 10}px`;
+            modelMenu.style.left = '50%';
+            modelMenu.style.transform = 'translateX(-50%)';
         }, 0);
     }
 });

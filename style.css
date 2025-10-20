@@ -20,12 +20,13 @@ body {
     position: relative;
 }
 
-/* Кнопка выбора модели */
+/* Кнопка выбора модели — центрируем через margin */
 .model-island {
     position: sticky;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    display: block;
+    width: fit-content;
+    margin: 1rem auto; /* Центрируем по горизонтали */
     background: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -34,8 +35,6 @@ body {
     padding: 0.5rem 1rem;
     cursor: pointer;
     z-index: 200;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
     box-shadow: none;
 }
 
@@ -44,7 +43,7 @@ body {
     font-weight: 500;
 }
 
-/* Меню выбора моделей */
+/* Меню выбора моделей — открывается строго под кнопкой */
 .model-menu {
     position: absolute;
     top: 100%;
@@ -77,8 +76,8 @@ body {
     border-radius: 8px;
     margin: 0 0.5rem;
     transition: background 0.2s;
-    border: none; /* Убираем границу */
-    outline: none; /* Убираем фокус */
+    border: none;
+    outline: none;
 }
 
 .model-menu-item:hover {
