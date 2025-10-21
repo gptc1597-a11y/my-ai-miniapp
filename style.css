@@ -31,10 +31,10 @@ body {
     width: auto;
     margin: 0;
     padding: 0.75rem 1.5rem;
-    background: rgba(150, 150, 150, 0.22);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(180, 180, 180, 0.24);
+    backdrop-filter: blur(45px);
+    -webkit-backdrop-filter: blur(45px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     cursor: pointer;
     z-index: 200;
@@ -67,10 +67,10 @@ body {
     left: 0;
     right: auto;
     transform: none;
-    background: rgba(150, 150, 150, 0.18);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(180, 180, 180, 0.2);
+    backdrop-filter: blur(45px);
+    -webkit-backdrop-filter: blur(45px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 18px;
     margin: 0;
     padding: 0.35rem;
@@ -96,20 +96,20 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     color: white;
-    background: rgba(150, 150, 150, 0.2); /* серый островок */
+    background: rgba(180, 180, 180, 0.24); /* серый островок */
     border-radius: 12px;
     margin: 0;
     transition: background 0.2s;
     border: none;
     outline: none;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(45px);
+    -webkit-backdrop-filter: blur(45px);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26);
 }
 
 .model-menu-item:hover {
-    background: rgba(150, 150, 150, 0.32); /* Светлее при наведении */
+    background: rgba(180, 180, 180, 0.36); /* Светлее при наведении */
 }
 
 /* Чат */
@@ -180,11 +180,11 @@ body {
     padding: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 20px;
-    resize: vertical;
+    resize: none;
     font-size: 1rem;
     min-height: 48px;
     max-height: 33vh;
-    overflow-y: auto;
+    overflow-y: hidden;
     background: rgba(255, 255, 255, 0.05);
     color: var(--text);
     font-family: inherit;
@@ -203,12 +203,12 @@ body {
     gap: 0.75rem;
     width: 100%;
     flex-wrap: nowrap;
-    background: rgba(150, 150, 150, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(180, 180, 180, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 20px;
     padding: 0.25rem;
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(45px);
+    -webkit-backdrop-filter: blur(45px);
 }
 
 .input-actions button {

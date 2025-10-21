@@ -11,6 +11,18 @@ const greeting = document.getElementById('greeting');
 const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
+// Автоматическое изменение высоты текстового поля
+const BASE_TEXTAREA_HEIGHT = 48;
+const MAX_TEXTAREA_RATIO = 0.33;
+
+function autoResizeTextarea() {
+    const maxHeight = Math.floor(window.innerHeight * MAX_TEXTAREA_RATIO);
+    const minHeight = BASE_TEXTAREA_HEIGHT;
+    queryInput.style.height = 'auto';
+    const next = Math.min(maxHeight, Math.max(minHeight, queryInput.scrollHeight));
+    queryInput.style.height = `${next}px`;
+}
+
 // Модели
 const models = {
     "gpt-5-chat-latest": "GPT-5 Chat",
@@ -86,6 +98,7 @@ async function sendRequest() {
     // Запрос пользователя
     addMessage(query, true);
     queryInput.value = '';
+    autoResizeTextarea();
 
     // Индикатор загрузки
     const loading = document.createElement('div');
@@ -120,9 +133,13 @@ async function sendRequest() {
 
 // Обработчики
 sendBtn.addEventListener('click', sendRequest);
+queryInput.addEventListener('input', autoResizeTextarea);
 queryInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendRequest();
     }
 });
+
+window.addEventListener('resize', autoResizeTextarea);
+autoResizeTextarea();
