@@ -79,11 +79,27 @@ document.addEventListener('click', (e) => {
 });
 
 // Добавление сообщения
+function formatAssistantMessage(text) {
+    if (!text) return '';
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+        const parsed = marked.parse(text, { breaks: true });
+        return DOMPurify.sanitize(parsed);
+    }
+    return text.replace(/\n/g, '<br>');
+}
+
 function addMessage(text, isUser = false) {
     const div = document.createElement('div');
     div.className = `message${isUser ? ' user' : ''}`;
-    div.textContent = text;
+    if (isUser) {
+        div.textContent = text;
+    } else {
+        div.innerHTML = formatAssistantMessage(text);
+    }
     chatContainer.appendChild(div);
+    if (!isUser && window.MathJax?.typesetPromise) {
+        MathJax.typesetPromise([div]).catch((err) => console.warn('MathJax render error', err));
+    }
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
