@@ -25,14 +25,14 @@ function autoResizeTextarea() {
 
 // Модели
 const models = [
-    { id: "gpt-5-chat-latest", label: "GPT-5 Chat", tag: "GPT", icon: "✦" },
-    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking", tag: "GPT", icon: "✦" },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", tag: "Gemini", icon: "🜚" },
-    { id: "grok-4-fast", label: "Grok-4 Fast", tag: "Grok", icon: "⚡" },
-    { id: "grok-4", label: "Grok-4", tag: "Grok", icon: "⚡" },
-    { id: "grok-3-reasoner", label: "Grok-3 Reasoner", tag: "Grok", icon: "⚡" },
-    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet", tag: "Claude", icon: "✺" },
-    { id: "claude-sonnet-4-5-20250929-thinking", label: "Claude Sonnet (Thinking)", tag: "Claude", icon: "✺" }
+    { id: "gpt-5-chat-latest", label: "GPT-5 Chat", tag: "GPT", logo: "GPT" },
+    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking", tag: "GPT", logo: "GPT" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", tag: "Gemini", logo: "G2" },
+    { id: "grok-4-fast", label: "Grok-4 Fast", tag: "Grok", logo: "GR" },
+    { id: "grok-4", label: "Grok-4", tag: "Grok", logo: "GR4" },
+    { id: "grok-3-reasoner", label: "Grok-3 Reasoner", tag: "Grok", logo: "GR3" },
+    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet", tag: "Claude", logo: "CL" },
+    { id: "claude-sonnet-4-5-20250929-thinking", label: "Claude Sonnet (Thinking)", tag: "Claude", logo: "CL" }
 ];
 
 let currentModel = "grok-4-fast";
@@ -48,7 +48,7 @@ function renderModelMenu() {
         item.type = 'button';
         item.className = `model-menu-item${model.id === currentModel ? ' active' : ''}`;
         item.innerHTML = `
-            <span class="icon">${model.icon}</span>
+            <span class="icon">${model.logo}</span>
             <span class="info">
                 <span class="name">${model.label}</span>
                 <span class="tag">${model.tag}</span>
@@ -60,6 +60,7 @@ function renderModelMenu() {
             currentModelLabel.textContent = model.label;
             renderModelMenu();
             modelMenu.classList.remove('visible');
+            modelIsland.classList.remove('active');
         });
         modelMenu.appendChild(item);
     });
@@ -72,7 +73,9 @@ modelIsland.appendChild(modelMenu);
 // Переключение меню
 modelIsland.addEventListener('click', (e) => {
     if (!modelMenu.contains(e.target)) {
-        modelMenu.classList.toggle('visible');
+        const willShow = !modelMenu.classList.contains('visible');
+        modelMenu.classList.toggle('visible', willShow);
+        modelIsland.classList.toggle('active', willShow);
         setTimeout(() => {
             const rect = modelIsland.getBoundingClientRect();
             modelMenu.style.bottom = `${rect.height + 12}px`;
@@ -86,6 +89,7 @@ modelIsland.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
     if (!modelIsland.contains(e.target) && !modelMenu.contains(e.target)) {
         modelMenu.classList.remove('visible');
+        modelIsland.classList.remove('active');
     }
 });
 

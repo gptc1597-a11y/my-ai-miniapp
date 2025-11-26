@@ -174,8 +174,8 @@ body {
     height: 64px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    background: #fdfdfd;
-    color: #0d1016;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -192,6 +192,12 @@ body {
     box-shadow: 0 20px 52px rgba(0, 0, 0, 0.5);
 }
 
+.model-trigger.active {
+    background: #ffffff;
+    color: #0d1016;
+    box-shadow: 0 20px 52px rgba(0, 0, 0, 0.55);
+}
+
 .model-icon {
     font-size: 1.1rem;
 }
@@ -199,6 +205,12 @@ body {
 .chevron {
     font-size: 0.9rem;
     color: #5c616a;
+    display: none;
+}
+
+.model-trigger.active .chevron {
+    display: inline-block;
+    color: #0d1016;
 }
 
 .visually-hidden {
@@ -218,6 +230,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     border-radius: 20px;
@@ -265,9 +278,9 @@ body {
 }
 
 #sendBtn svg {
-    width: 22px;
-    height: 22px;
-    transform: rotate(-30deg);
+    width: 26px;
+    height: 26px;
+    transform: rotate(180deg);
 }
 
 .model-menu {
@@ -321,10 +334,14 @@ body {
     width: 38px;
     height: 38px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
+    background: #111317;
+    color: #f7f7f7;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     display: grid;
     place-items: center;
-    font-size: 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
 }
 
 .model-menu-item .info {
@@ -361,6 +378,12 @@ body {
     box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
 }
 
+.model-menu-item.active .icon {
+    background: #ffffff;
+    color: #0f1114;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
 .model-menu-item.active .dot {
     background: #fff;
     border-color: rgba(255, 255, 255, 0.6);
@@ -383,11 +406,16 @@ body {
     }
 
     .model-trigger {
-        width: 56px;
-        height: 56px;
+        width: 64px;
+        height: 64px;
     }
 
     .input-shell {
         padding: 0.3rem;
+    }
+
+    #sendBtn {
+        width: 64px;
+        height: 64px;
     }
 }
