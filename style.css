@@ -39,8 +39,8 @@ body {
     border-right: 1px solid rgba(255, 255, 255, 0.02);
     box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
     animation: fadeIn 0.4s ease;
-.app, .input-panel, .model-trigger, #sendBtn, .input-shell, .model-menu, .model-menu-item {
-    transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease, color 0.18s ease;
+.app, .input-panel, .model-trigger, #sendBtn, .input-shell, .model-menu, .model-menu-item, #query, .message, .greeting, .chat, .topbar {
+    transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease, color 0.18s ease, opacity 0.2s ease;
 }
 
 .topbar {
@@ -248,7 +248,7 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     min-width: 0;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
@@ -257,13 +257,14 @@ body {
     min-height: 64px;
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    position: relative;
 }
 
 #query {
     flex: 1;
     min-height: 64px;
     max-height: 32vh;
-    padding: 1.05rem 1.05rem;
+    padding: 1.05rem 3.5rem 1.05rem 1.1rem;
     background: transparent;
     border: none;
     color: var(--text);
@@ -288,9 +289,13 @@ body {
 }
 
 #sendBtn {
-    width: 64px;
-    height: 64px;
-    border-radius: 20px;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%) rotate(180deg);
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: linear-gradient(145deg, #ffffff, #dfe4ee);
     color: #0f1114;
@@ -303,18 +308,18 @@ body {
 }
 
 #sendBtn:hover {
-    transform: translateY(-1px);
+    transform: translate(-0.5px, calc(-50% - 1px)) rotate(180deg);
     box-shadow: 0 22px 52px rgba(0, 0, 0, 0.5);
 }
 
 #sendBtn:active {
-    transform: scale(0.97);
+    transform: translateY(-50%) scale(0.97) rotate(180deg);
 }
 
 #sendBtn svg {
     width: 26px;
     height: 26px;
-    transform: rotate(180deg);
+    transform: none;
 }
 
 .model-menu {
