@@ -3,6 +3,16 @@ Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 Telegram.WebApp.MainButton.hide();
 
+// Настройки markdown: сохраняем спецсимволы и заголовки без id
+if (typeof marked !== 'undefined') {
+    marked.setOptions({
+        gfm: true,
+        breaks: true,
+        mangle: false,
+        headerIds: false
+    });
+}
+
 // Элементы DOM
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
