@@ -12,7 +12,7 @@ const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
 // Автоматическое изменение высоты текстового поля
-const BASE_TEXTAREA_HEIGHT = 48;
+const BASE_TEXTAREA_HEIGHT = 52;
 const MAX_TEXTAREA_RATIO = 0.33;
 
 function autoResizeTextarea() {
@@ -24,49 +24,60 @@ function autoResizeTextarea() {
 }
 
 // Модели
-const models = {
-    "gpt-5-chat-latest": "GPT-5 Chat",
-    "gpt-5-thinking-all": "GPT-5 Thinking",
-    "gemini-2.5-pro": "Gemini 2.5 Pro",
-    "grok-4-fast": "Grok-4 Fast",
-    "grok-4": "Grok-4",
-    "grok-3-reasoner": "Grok-3 Reasoner",
-    "claude-sonnet-4-5-20250929": "Claude Sonnet",
-    "claude-sonnet-4-5-20250929-thinking": "Claude Sonnet (Thinking)"
-};
+const models = [
+    { id: "gpt-5-chat-latest", label: "GPT-5 Chat", tag: "GPT", icon: "✦" },
+    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking", tag: "GPT", icon: "✦" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", tag: "Gemini", icon: "🜚" },
+    { id: "grok-4-fast", label: "Grok-4 Fast", tag: "Grok", icon: "⚡" },
+    { id: "grok-4", label: "Grok-4", tag: "Grok", icon: "⚡" },
+    { id: "grok-3-reasoner", label: "Grok-3 Reasoner", tag: "Grok", icon: "⚡" },
+    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet", tag: "Claude", icon: "✺" },
+    { id: "claude-sonnet-4-5-20250929-thinking", label: "Claude Sonnet (Thinking)", tag: "Claude", icon: "✺" }
+];
 
-let currentModel = "gpt-5-chat-latest";
+let currentModel = "grok-4-fast";
 
 // Создание меню выбора модели
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
-Object.entries(models).forEach(([value, label]) => {
-    const item = document.createElement('div');
-    item.className = 'model-menu-item';
-    item.textContent = label;
-    item.addEventListener('click', () => {
-        currentModel = value;
-        currentModelLabel.textContent = label;
-        modelMenu.classList.remove('visible');
+function renderModelMenu() {
+    modelMenu.innerHTML = '';
+    models.forEach((model) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = `model-menu-item${model.id === currentModel ? ' active' : ''}`;
+        item.innerHTML = `
+            <span class="icon">${model.icon}</span>
+            <span class="info">
+                <span class="name">${model.label}</span>
+                <span class="tag">${model.tag}</span>
+            </span>
+            <span class="dot"></span>
+        `;
+        item.addEventListener('click', () => {
+            currentModel = model.id;
+            currentModelLabel.textContent = model.label;
+            renderModelMenu();
+            modelMenu.classList.remove('visible');
+        });
+        modelMenu.appendChild(item);
     });
-    modelMenu.appendChild(item);
-});
+}
 
+renderModelMenu();
+currentModelLabel.textContent = models.find((m) => m.id === currentModel)?.label || models[0].label;
 modelIsland.appendChild(modelMenu);
 
 // Переключение меню
 modelIsland.addEventListener('click', (e) => {
     if (!modelMenu.contains(e.target)) {
         modelMenu.classList.toggle('visible');
-        // Принудительно обновляем позицию меню
         setTimeout(() => {
             const rect = modelIsland.getBoundingClientRect();
-            modelMenu.style.top = 'auto';
             modelMenu.style.bottom = `${rect.height + 12}px`;
             modelMenu.style.left = '0';
             modelMenu.style.right = 'auto';
-            modelMenu.style.transform = 'none';
         }, 0);
     }
 });
@@ -90,7 +101,7 @@ function formatAssistantMessage(text) {
 
 function addMessage(text, isUser = false) {
     const div = document.createElement('div');
-    div.className = `message${isUser ? ' user' : ''}`;
+    div.className = `message ${isUser ? 'user' : 'assistant'}`;
     if (isUser) {
         div.textContent = text;
     } else {
