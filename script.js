@@ -21,6 +21,26 @@ const greeting = document.getElementById('greeting');
 const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
+// Очередь для отложенной типографики MathJax
+const pendingMathNodes = [];
+
+function tryTypesetMath() {
+    if (!window.MathJax || !MathJax.typesetPromise) return;
+    if (!pendingMathNodes.length) return;
+    const nodes = pendingMathNodes.splice(0, pendingMathNodes.length);
+    MathJax.typesetPromise(nodes).catch((err) => console.warn('MathJax render error', err));
+}
+
+// Периодическая проверка готовности MathJax (на случай ранних сообщений)
+const mathReadyInterval = setInterval(() => {
+    if (window.MathJax?.typesetPromise && window.MathJax?.startup?.promise) {
+        window.MathJax.startup.promise.then(() => {
+            tryTypesetMath();
+        });
+        clearInterval(mathReadyInterval);
+    }
+}, 300);
+
 // Автоматическое изменение высоты текстового поля
 const BASE_TEXTAREA_HEIGHT = 64;
 const MAX_TEXTAREA_RATIO = 0.33;
@@ -122,9 +142,8 @@ function addMessage(text, isUser = false) {
         div.innerHTML = formatAssistantMessage(text);
     }
     chatContainer.appendChild(div);
-    if (!isUser && window.MathJax?.typesetPromise) {
-        MathJax.typesetPromise([div]).catch((err) => console.warn('MathJax render error', err));
-    }
+    pendingMathNodes.push(div);
+    tryTypesetMath();
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 

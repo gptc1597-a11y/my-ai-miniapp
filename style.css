@@ -171,6 +171,7 @@ body {
     font-family: "Times New Roman", "STIX Two Math", "CMU Serif", serif;
     font-weight: 600;
     letter-spacing: -0.01em;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
 }
 
 .message .mjx-container[jax="CHTML"][display="true"] {
