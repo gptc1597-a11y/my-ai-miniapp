@@ -168,6 +168,9 @@ body {
 
 .message .mjx-container {
     color: var(--text);
+    font-family: "Times New Roman", "STIX Two Math", "CMU Serif", serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 .message .mjx-container[jax="CHTML"][display="true"] {
@@ -177,7 +180,8 @@ body {
 }
 
 .message .mjx-math {
-    font-size: 1.05em;
+    font-size: 1.08em;
+    line-height: 1.25;
 }
 
 .message blockquote {

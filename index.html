@@ -10,7 +10,16 @@
         window.MathJax = {
             tex: {
                 inlineMath: [['\\(', '\\)'], ['$', '$']],
-                displayMath: [['\\[', '\\]'], ['$$', '$$']]
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true,
+                packages: { '[+]': ['ams', 'noerrors', 'noundefined'] }
+            },
+            chtml: {
+                scale: 1.05,
+                fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/tex',
+                mtextInheritFont: false,
+                merrorInheritFont: false
             },
             options: {
                 renderActions: { addMenu: [] }
