@@ -12,7 +12,7 @@ const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
 // Автоматическое изменение высоты текстового поля
-const BASE_TEXTAREA_HEIGHT = 52;
+const BASE_TEXTAREA_HEIGHT = 64;
 const MAX_TEXTAREA_RATIO = 0.33;
 
 function autoResizeTextarea() {

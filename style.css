@@ -165,7 +165,7 @@ body {
     border-top: 1px solid var(--border);
     display: flex;
     gap: 0.85rem;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .model-trigger {
@@ -221,15 +221,16 @@ body {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    min-height: 64px;
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
 }
 
 #query {
     flex: 1;
-    min-height: 52px;
+    min-height: 64px;
     max-height: 32vh;
-    padding: 0.75rem 0.9rem;
+    padding: 1.05rem 1.05rem;
     background: transparent;
     border: none;
     color: var(--text);
@@ -244,9 +245,9 @@ body {
 }
 
 #sendBtn {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: linear-gradient(145deg, #ffffff, #dfe4ee);
     color: #0f1114;
@@ -266,6 +267,7 @@ body {
 #sendBtn svg {
     width: 22px;
     height: 22px;
+    transform: rotate(-30deg);
 }
 
 .model-menu {
