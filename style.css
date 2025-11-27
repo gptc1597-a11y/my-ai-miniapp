@@ -216,7 +216,7 @@ body {
     border-top: 1px solid var(--border);
     display: flex;
     gap: 0.85rem;
-    align-items: center;
+    align-items: flex-end;
     animation: floatUp 0.32s ease;
 }
 
@@ -237,6 +237,7 @@ body {
     box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45);
     flex-shrink: 0;
     touch-action: manipulation;
+    align-self: flex-end;
 }
 
 .model-trigger:hover {
@@ -338,8 +339,9 @@ body {
 #sendBtn {
     position: absolute;
     right: 8px;
-    top: 50%;
-    transform: translateY(-50%) rotate(180deg);
+    top: auto;
+    bottom: 6px;
+    transform: rotate(180deg);
     width: 46px;
     height: 46px;
     border-radius: 14px;
@@ -355,12 +357,12 @@ body {
 }
 
 #sendBtn:hover {
-    transform: translate(-0.5px, calc(-50% - 1px)) rotate(180deg);
+    transform: translate(-0.5px, -1px) rotate(180deg);
     box-shadow: 0 22px 52px rgba(0, 0, 0, 0.5);
 }
 
 #sendBtn:active {
-    transform: translateY(-50%) scale(0.97) rotate(180deg);
+    transform: scale(0.97) rotate(180deg);
 }
 
 #sendBtn svg {
