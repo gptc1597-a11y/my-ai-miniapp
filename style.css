@@ -505,6 +505,7 @@ body {
 
     .input-panel {
         padding: 0.8rem 0.85rem calc(0.8rem + env(safe-area-inset-bottom));
+        gap: 0.65rem;
     }
 
     .model-trigger {
@@ -513,12 +514,14 @@ body {
     }
 
     .input-shell {
-        padding: 0.3rem;
+        padding: 0.35rem 0.5rem;
+        min-height: 56px;
     }
 
     #sendBtn {
-        width: 64px;
-        height: 64px;
+        width: 46px;
+        height: 46px;
+        bottom: 6px;
     }
 }
 
