@@ -300,7 +300,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 0.35rem 0.5rem;
-    min-height: 64px;
+    min-height: 56px;
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     position: relative;
@@ -308,9 +308,9 @@ body {
 
 #query {
     flex: 1;
-    min-height: 64px;
+    min-height: 56px;
     max-height: calc(100vh / 3);
-    padding: 0.9rem 3.5rem 0.9rem 1.2rem;
+    padding: 0.8rem 3.5rem 0.8rem 1.1rem;
     background: transparent;
     border: none;
     color: var(--text);

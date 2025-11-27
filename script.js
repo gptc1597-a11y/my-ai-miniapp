@@ -42,7 +42,7 @@ const mathReadyInterval = setInterval(() => {
 }, 300);
 
 // Автоматическое изменение высоты текстового поля
-const BASE_TEXTAREA_HEIGHT = 64;
+const BASE_TEXTAREA_HEIGHT = 56;
 const MAX_TEXTAREA_RATIO = 0.33;
 
 function autoResizeTextarea() {
