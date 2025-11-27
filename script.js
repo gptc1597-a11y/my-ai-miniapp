@@ -46,11 +46,13 @@ const BASE_TEXTAREA_HEIGHT = 64;
 const MAX_TEXTAREA_RATIO = 0.33;
 
 function autoResizeTextarea() {
-    const maxHeight = Math.floor(window.innerHeight * MAX_TEXTAREA_RATIO);
+    const viewport = Math.max(window.innerHeight || document.documentElement.clientHeight || 0, 0);
+    const maxHeight = Math.floor(viewport * MAX_TEXTAREA_RATIO);
     const minHeight = BASE_TEXTAREA_HEIGHT;
     queryInput.style.height = 'auto';
     const next = Math.min(maxHeight, Math.max(minHeight, queryInput.scrollHeight));
     queryInput.style.height = `${next}px`;
+    queryInput.style.overflowY = queryInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
 }
 
 // Модели
