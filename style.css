@@ -39,6 +39,7 @@ body {
     border-right: 1px solid rgba(255, 255, 255, 0.02);
     box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
     animation: fadeIn 0.4s ease;
+}
 .app, .input-panel, .model-trigger, #sendBtn, .input-shell, .model-menu, .model-menu-item, #query, .message, .greeting, .chat, .topbar {
     transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease, color 0.18s ease, opacity 0.2s ease;
 }
@@ -338,9 +339,9 @@ body {
     right: 8px;
     top: 50%;
     transform: translateY(-50%) rotate(180deg);
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: linear-gradient(145deg, #ffffff, #dfe4ee);
     color: #0f1114;
