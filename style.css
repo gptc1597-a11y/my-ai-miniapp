@@ -1,19 +1,15 @@
 :root {
     --bg-dark: #090a0c;
-    --bg-panel: rgba(22, 23, 26, 0.8);
+    /* Делаем фон панели более прозрачным для эффекта стекла */
+    --bg-panel: rgba(13, 14, 16, 0.65); 
     --primary: #1fde62;
-    --primary-dim: rgba(31, 222, 98, 0.15);
     --text-main: #f0f2f5;
     --text-muted: #8b929e;
     --border: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.08);
     --message-user-bg: linear-gradient(135deg, #1fde62 0%, #15b04c 100%);
     --message-bot-bg: rgba(255, 255, 255, 0.03);
     --radius-lg: 24px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
-    --font-main: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-code: "JetBrains Mono", monospace;
     --safe-area-bottom: env(safe-area-inset-bottom);
 }
 
@@ -21,12 +17,13 @@
 
 body {
     background-color: var(--bg-dark);
+    /* Яркие пятна на фоне для проверки размытия */
     background-image: 
-        radial-gradient(circle at 10% 20%, rgba(31, 222, 98, 0.06) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(61, 73, 255, 0.06) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(31, 222, 98, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(61, 73, 255, 0.08) 0%, transparent 40%);
     color: var(--text-main);
-    font-family: var(--font-main);
-    height: 100dvh; /* Dynamic viewport height */
+    font-family: "Manrope", sans-serif;
+    height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -39,23 +36,29 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(0,0,0,0.2) 100%);
 }
 
-/* --- Header --- */
+/* --- Topbar с размытием --- */
 .topbar {
-    padding: 1rem 1.5rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
     display: flex;
     justify-content: center;
-    backdrop-filter: blur(10px);
+    background: rgba(9, 10, 12, 0.5); /* Полупрозрачный */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     z-index: 10;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
 }
 
 .brand-container {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
     padding: 6px 14px;
     border-radius: 99px;
     border: 1px solid var(--border);
@@ -67,7 +70,6 @@ body {
     background: var(--primary);
     border-radius: 50%;
     box-shadow: 0 0 10px var(--primary);
-    animation: pulse 2s infinite;
 }
 
 .brand {
@@ -77,241 +79,188 @@ body {
     color: var(--text-muted);
 }
 
-/* --- Chat Area --- */
+/* --- Чат --- */
 .chat {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem 1rem calc(90px + var(--safe-area-bottom));
+    /* УВЕЛИЧЕННЫЙ отступ снизу (160px), чтобы видеть конец сообщения */
+    padding: 80px 1rem calc(160px + var(--safe-area-bottom));
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     scroll-behavior: smooth;
 }
 
-.chat::-webkit-scrollbar { width: 4px; }
-.chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-/* Greeting */
 .greeting-container {
     margin: auto;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    opacity: 0;
-    animation: fadeUp 0.6s ease forwards;
     padding: 2rem;
+    animation: fadeUp 0.6s ease;
 }
-
 .greeting-container.hidden { display: none; }
 
 .neural-logo {
     width: 64px;
     height: 64px;
     color: var(--primary);
-    margin-bottom: 0.5rem;
-    animation: float 4s ease-in-out infinite;
+    margin: 0 auto 1rem;
 }
 
-.greeting-container h2 {
-    font-size: 1.5rem;
-    font-weight: 800;
-}
-
-.greeting-container p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
-
-/* Messages */
+/* Сообщения */
 .message {
     max-width: 88%;
     padding: 14px 18px;
-    position: relative;
-    font-size: 0.98rem;
+    font-size: 1rem;
     line-height: 1.6;
-    word-wrap: break-word;
-    animation: messagePop 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    animation: messagePop 0.3s ease forwards;
 }
 
 .message.user {
     align-self: flex-end;
     background: var(--message-user-bg);
-    color: #050505;
-    border-radius: var(--radius-lg) var(--radius-lg) 2px var(--radius-lg);
-    box-shadow: 0 4px 15px rgba(31, 222, 98, 0.2);
+    color: #000;
+    border-radius: 20px 20px 4px 20px;
     font-weight: 600;
+    box-shadow: 0 4px 20px rgba(31, 222, 98, 0.15);
 }
 
 .message.assistant {
     align-self: flex-start;
     background: var(--message-bot-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 2px;
+    border-radius: 20px 20px 20px 4px;
     color: var(--text-main);
 }
 
-/* Markdown Styling inside Assistant Messages */
+/* Стили для контента внутри сообщений */
 .message.assistant p { margin-bottom: 0.8em; }
 .message.assistant p:last-child { margin-bottom: 0; }
-.message.assistant strong { font-weight: 700; color: #fff; }
 .message.assistant code {
-    background: rgba(0,0,0,0.3);
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-family: var(--font-code);
+    background: rgba(255,255,255,0.1);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
     font-size: 0.9em;
     color: #ff79c6;
 }
 .message.assistant pre {
-    background: rgba(0,0,0,0.4);
+    background: #131418;
     padding: 1rem;
-    border-radius: var(--radius-sm);
+    border-radius: 12px;
     overflow-x: auto;
     margin: 0.8rem 0;
     border: 1px solid var(--border);
 }
-.message.assistant pre code {
-    background: transparent;
-    padding: 0;
-    color: #f8f8f2;
-    font-size: 0.85em;
-}
-.message.assistant ul, .message.assistant ol { margin-left: 1.5rem; margin-bottom: 0.8rem; }
-.message.assistant li { margin-bottom: 0.3rem; }
 
-/* MathJax Overrides */
+/* MathJax фиксы */
 mjx-container {
     color: var(--text-main) !important;
-    font-size: 1.05em !important;
+    font-size: 1.1em !important;
+    margin: 0.5rem 0 !important;
 }
 
-/* Loading Indicator */
-.loading-dots {
-    display: inline-flex;
-    gap: 4px;
-}
-.loading-dots span {
-    width: 6px;
-    height: 6px;
-    background: var(--text-muted);
-    border-radius: 50%;
-    animation: bounce 1.4s infinite ease-in-out both;
-}
-.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-/* --- Input Area --- */
+/* --- Панель ввода с сильным размытием --- */
 .input-panel {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 12px 16px max(12px, var(--safe-area-bottom));
-    background: rgba(13, 14, 16, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    /* Больше паддинга снизу для мобильных */
+    padding: 12px 16px max(20px, var(--safe-area-bottom));
+    
+    /* Стекломорфизм */
+    background: var(--bg-panel);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    
     border-top: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
     gap: 10px;
     z-index: 20;
+    transition: transform 0.3s ease;
 }
 
 .input-controls {
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-/* Model Selector */
 .model-trigger {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     padding: 6px 12px;
     border-radius: 12px;
     color: var(--text-main);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
-.model-trigger:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
-.model-icon { width: 16px; height: 16px; color: var(--text-muted); }
-.model-icon svg { width: 100%; height: 100%; }
 
-/* Input Shell */
 .input-shell {
     position: relative;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
     padding: 4px;
     display: flex;
     align-items: flex-end;
-    transition: border-color 0.2s, background 0.2s;
 }
+
 .input-shell:focus-within {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 #query {
     width: 100%;
-    max-height: 120px;
+    max-height: 140px;
     min-height: 48px;
     background: transparent;
     border: none;
-    padding: 14px 50px 14px 16px;
+    padding: 12px 50px 12px 16px;
     color: var(--text-main);
-    font-family: inherit;
     font-size: 1rem;
-    line-height: 1.4;
     resize: none;
     outline: none;
 }
-#query::placeholder { color: #5a606b; }
 
 #sendBtn {
     position: absolute;
     right: 6px;
     bottom: 6px;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     background: var(--text-main);
-    color: #000;
+    border-radius: 50%;
     border: none;
-    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    color: #000;
     transition: transform 0.2s;
 }
 #sendBtn:active { transform: scale(0.9); }
-#sendBtn svg { width: 20px; height: 20px; }
 
-/* Model Menu */
+/* --- Меню моделей --- */
 .model-menu {
     position: absolute;
-    bottom: 100%;
-    left: 16px;
-    background: #1a1c20;
-    border: 1px solid var(--border);
+    background: rgba(18, 20, 24, 0.85); /* Полупрозрачный */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
     border-radius: 16px;
     padding: 6px;
-    min-width: 200px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    width: 220px;
     display: none;
     flex-direction: column;
     gap: 2px;
     z-index: 30;
-    margin-bottom: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 .model-menu.visible { display: flex; animation: fadeUp 0.2s ease; }
 
@@ -319,27 +268,14 @@ mjx-container {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    padding: 10px 12px;
+    padding: 12px;
     text-align: left;
-    font-family: inherit;
-    font-size: 0.9rem;
     border-radius: 10px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    font-size: 0.9rem;
 }
-.model-menu-item:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
-.model-menu-item.active { background: rgba(31, 222, 98, 0.1); color: var(--primary); font-weight: 600; }
+.model-menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.model-menu-item.active { background: rgba(31, 222, 98, 0.15); color: var(--primary); }
 
-/* Animations */
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(31, 222, 98, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(31, 222, 98, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 222, 98, 0); } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes messagePop { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
-
-@media (min-width: 600px) {
-    .app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-    .input-panel { padding: 16px 24px; border-radius: 0 0 20px 20px; }
-}
+@keyframes messagePop { from { opacity: 0; transform: scale(0.98) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
