@@ -1,12 +1,21 @@
-// Инициализация
+// Инициализация Telegram WebApp
 if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
-    Telegram.WebApp.setHeaderColor('#090a0c');
+    // Адаптация цвета хедера под тему
+    Telegram.WebApp.setHeaderColor('#090a0c'); 
     Telegram.WebApp.setBackgroundColor('#090a0c');
 }
 
-// Настройка Marked
+// Элементы DOM
+const sendBtn = document.getElementById('sendBtn');
+const queryInput = document.getElementById('query');
+const chatContainer = document.getElementById('chatContainer');
+const greeting = document.getElementById('greeting');
+const modelIsland = document.getElementById('modelIsland');
+const currentModelLabel = document.getElementById('currentModelLabel');
+
+// Конфигурация Markdown
 if (typeof marked !== 'undefined') {
     marked.setOptions({
         gfm: true,
@@ -16,73 +25,115 @@ if (typeof marked !== 'undefined') {
     });
 }
 
-// Элементы
-const sendBtn = document.getElementById('sendBtn');
-const queryInput = document.getElementById('query');
-const chatContainer = document.getElementById('chatContainer');
-const greeting = document.getElementById('greeting');
-const modelIsland = document.getElementById('modelIsland');
-const currentModelLabel = document.getElementById('currentModelLabel');
+// Модели
+const models = [
+    { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
+    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+    { id: "grok-4-fast", label: "Grok-4 Fast" },
+    { id: "grok-4", label: "Grok-4" },
+    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" }
+];
 
 let currentModel = "grok-4-fast";
 
-// --- Логика Формул (КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ) ---
+// --- Меню моделей ---
+const modelMenu = document.createElement('div');
+modelMenu.className = 'model-menu';
 
-// Используем простые токены БЕЗ спецсимволов markdown (_, *, ~)
-const MATH_BLOCK_TOKEN = 'MATHPHBLOCK';
-const MATH_INLINE_TOKEN = 'MATHPHINLINE';
+function renderModelMenu() {
+    modelMenu.innerHTML = '';
+    models.forEach((model) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = `model-menu-item${model.id === currentModel ? ' active' : ''}`;
+        item.textContent = model.label;
+        if (model.id === currentModel) {
+            const check = document.createElement('span');
+            check.innerHTML = '●';
+            check.style.fontSize = '10px';
+            item.appendChild(check);
+        }
+        
+        item.addEventListener('click', () => {
+            currentModel = model.id;
+            currentModelLabel.textContent = model.label;
+            renderModelMenu();
+            modelMenu.classList.remove('visible');
+        });
+        modelMenu.appendChild(item);
+    });
+}
 
-function processText(text) {
+renderModelMenu();
+// Вставляем меню перед панелью ввода, чтобы позиционировать относительно modelIsland
+document.querySelector('.input-panel').appendChild(modelMenu);
+
+modelIsland.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rect = modelIsland.getBoundingClientRect();
+    modelMenu.style.left = `${rect.left}px`;
+    modelMenu.style.bottom = `${window.innerHeight - rect.top + 8}px`; // Позиционируем над кнопкой
+    modelMenu.classList.toggle('visible');
+});
+
+document.addEventListener('click', (e) => {
+    if (!modelMenu.contains(e.target) && !modelIsland.contains(e.target)) {
+        modelMenu.classList.remove('visible');
+    }
+});
+
+// --- Обработка ввода ---
+const autoResizeTextarea = () => {
+    queryInput.style.height = 'auto';
+    queryInput.style.height = Math.min(queryInput.scrollHeight, 120) + 'px';
+};
+
+queryInput.addEventListener('input', autoResizeTextarea);
+
+// --- Логика сообщений и формул ---
+
+// 1. Защита формул от Markdown парсера
+function escapeMath(text) {
+    // Временное хранилище для формул
     const mathStore = [];
     
-    // 1. Сохраняем блочные формулы $$...$$ и \[...\]
-    // Используем [\s\S] для захвата переносов строк
+    // Заменяем $$...$$ (display math)
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
-        const id = mathStore.length;
-        mathStore.push(`$$${content}$$`);
-        return `${MATH_BLOCK_TOKEN}${id}END`;
+        const id = `__MATH_BLOCK_${mathStore.length}__`;
+        mathStore.push({ id, content: `$$${content}$$` });
+        return id;
     });
 
+    // Заменяем \(...\) и $...$ (inline math)
+    // Важно: $...$ может встречаться в обычном тексте, поэтому используем строгую проверку или полагаемся на структуру
     text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
-        const id = mathStore.length;
-        mathStore.push(`$$${content}$$`); // Приводим к формату MathJax
-        return `${MATH_BLOCK_TOKEN}${id}END`;
+        const id = `__MATH_BLOCK_${mathStore.length}__`;
+        mathStore.push({ id, content: `$$${content}$$` }); // MathJax понимает $$ для блока
+        return id;
     });
 
-    // 2. Сохраняем строчные формулы \(...\)
     text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-        const id = mathStore.length;
-        mathStore.push(`\\(${content}\\)`);
-        return `${MATH_INLINE_TOKEN}${id}END`;
+        const id = `__MATH_INLINE_${mathStore.length}__`;
+        mathStore.push({ id, content: `\\(${content}\\)` });
+        return id;
     });
-
-    // 3. Сохраняем строчные формулы $...$ 
-    // (аккуратно, чтобы не захватить цены вида $100)
-    text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
-        const id = mathStore.length;
-        mathStore.push(`$${content}$`);
-        return `${MATH_INLINE_TOKEN}${id}END`;
-    });
-
-    // 4. Рендерим Markdown
-    let html = marked.parse(text);
-
-    // 5. Восстанавливаем формулы
-    // Мы ищем наши токены в HTML и возвращаем оригинальный LaTeX
-    // Marked оборачивает блочные элементы в <p>, поэтому иногда полезно убрать <p> вокруг блока
     
-    // Восстановление блоков
-    const blockRegex = new RegExp(`${MATH_BLOCK_TOKEN}(\\d+)END`, 'g');
-    html = html.replace(blockRegex, (match, id) => {
-        return mathStore[parseInt(id)];
+    // Осторожная замена $...$ для inline, исключая экранированные \$
+    text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
+        const id = `__MATH_INLINE_${mathStore.length}__`;
+        mathStore.push({ id, content: `$${content}$` });
+        return id;
     });
 
-    // Восстановление инлайнов
-    const inlineRegex = new RegExp(`${MATH_INLINE_TOKEN}(\\d+)END`, 'g');
-    html = html.replace(inlineRegex, (match, id) => {
-        return mathStore[parseInt(id)];
-    });
+    return { text, mathStore };
+}
 
+// 2. Восстановление формул после Markdown
+function unescapeMath(html, mathStore) {
+    mathStore.forEach(item => {
+        html = html.replace(item.id, item.content);
+    });
     return html;
 }
 
@@ -93,54 +144,52 @@ function addMessage(text, isUser = false) {
     if (isUser) {
         div.textContent = text;
     } else {
-        // Обработка Markdown + Формул
-        const safeHtml = DOMPurify.sanitize(processText(text));
-        div.innerHTML = safeHtml;
+        if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+            // Шаг 1: Спрятать формулы
+            const { text: safeText, mathStore } = escapeMath(text);
+            // Шаг 2: Рендер Markdown
+            let rawHtml = marked.parse(safeText);
+            // Шаг 3: Вернуть формулы
+            rawHtml = unescapeMath(rawHtml, mathStore);
+            // Шаг 4: Санитизация (разрешаем mathjax теги если нужно, но обычно они просто текст на этом этапе)
+            div.innerHTML = DOMPurify.sanitize(rawHtml);
+        } else {
+            div.textContent = text;
+        }
     }
 
     chatContainer.appendChild(div);
     
-    // Запуск рендера формул только для этого сообщения
+    // Рендер формул в новом сообщении
     if (!isUser && window.MathJax) {
-        MathJax.typesetPromise([div]).catch(err => console.log(err));
+        MathJax.typesetPromise([div]).catch(err => console.log('MathJax Error:', err));
     }
 
-    // Прокрутка вниз с небольшим таймаутом для учета рендера картинок/формул
-    setTimeout(scrollToBottom, 50);
+    // Скролл вниз
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function scrollToBottom() {
-    chatContainer.scrollTo({
-        top: chatContainer.scrollHeight,
-        behavior: 'smooth'
-    });
-}
-
-// --- Остальная логика ---
-
-const autoResizeTextarea = () => {
-    queryInput.style.height = 'auto';
-    queryInput.style.height = Math.min(queryInput.scrollHeight, 140) + 'px';
-};
-
-queryInput.addEventListener('input', autoResizeTextarea);
-
+// --- Отправка запроса ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
 
-    greeting.classList.add('hidden');
+    if (!greeting.classList.contains('hidden')) {
+        greeting.classList.add('hidden');
+    }
+
     addMessage(query, true);
-    
     queryInput.value = '';
-    queryInput.style.height = 'auto';
-    
-    // Индикатор
+    queryInput.style.height = 'auto'; // Сброс высоты
+    queryInput.focus();
+
+    // Создаем пузырь загрузки
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'message assistant';
-    loadingDiv.innerHTML = '⏳ <i>Думаю...</i>';
+    loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
     chatContainer.appendChild(loadingDiv);
-    scrollToBottom();
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
         const res = await fetch('https://my-ai-miniapp.onrender.com/api/ask', {
@@ -149,73 +198,31 @@ async function sendRequest() {
             body: JSON.stringify({
                 model: currentModel,
                 query: query,
+                // Передаем ID пользователя если есть, иначе аноним
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anon'
             })
         });
 
-        const data = await res.json();
         chatContainer.removeChild(loadingDiv);
+        const data = await res.json();
 
         if (res.ok) {
             addMessage(data.answer);
         } else {
-            addMessage(`Ошибка: ${data.error}`);
+            addMessage(`Ошибка: ${data.error || 'Не удалось получить ответ'}`);
         }
+
     } catch (e) {
-        if(loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
+        if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
         addMessage(`Ошибка сети: ${e.message}`);
     }
 }
 
-// Меню моделей
-const models = [
-    { id: "grok-4-fast", label: "Grok-4 Fast" },
-    { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" }
-];
-
-const modelMenu = document.createElement('div');
-modelMenu.className = 'model-menu';
-document.querySelector('.input-panel').appendChild(modelMenu);
-
-function renderMenu() {
-    modelMenu.innerHTML = '';
-    models.forEach(m => {
-        const btn = document.createElement('button');
-        btn.className = `model-menu-item ${m.id === currentModel ? 'active' : ''}`;
-        btn.textContent = m.label;
-        btn.onclick = () => {
-            currentModel = m.id;
-            currentModelLabel.textContent = m.label;
-            modelMenu.classList.remove('visible');
-            renderMenu();
-        };
-        modelMenu.appendChild(btn);
-    });
-}
-renderMenu();
-
-modelIsland.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // Позиционируем меню над кнопкой
-    const rect = modelIsland.getBoundingClientRect();
-    const panelRect = document.querySelector('.input-panel').getBoundingClientRect();
-    
-    modelMenu.style.left = '16px';
-    modelMenu.style.bottom = (panelRect.height + 10) + 'px';
-    modelMenu.classList.toggle('visible');
-});
-
-document.addEventListener('click', (e) => {
-    if (!modelMenu.contains(e.target) && !modelIsland.contains(e.target)) {
-        modelMenu.classList.remove('visible');
-    }
-});
-
+// События
 sendBtn.addEventListener('click', sendRequest);
+
 queryInput.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendRequest();
     }
