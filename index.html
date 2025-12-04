@@ -2,66 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>ИИ Ассистент</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>AI Neural Core</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- MathJax Config -->
     <script>
         window.MathJax = {
             tex: {
-                inlineMath: [['\\(', '\\)'], ['$', '$']],
-                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
                 processEscapes: true,
-                processEnvironments: true,
-                packages: { '[+]': ['ams', 'noerrors', 'noundefined'] }
-            },
-            chtml: {
-                scale: 1.05,
-                fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/tex',
-                mtextInheritFont: false,
-                merrorInheritFont: false
+                processEnvironments: true
             },
             options: {
-                renderActions: { addMenu: [] }
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            chtml: {
+                scale: 1.1, // Чуть крупнее формулы
+                fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/tex'
             }
         };
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app">
         <header class="topbar">
-            <span class="status-dot"></span>
-            <span class="brand">AI NEURAL CORE</span>
+            <div class="brand-container">
+                <span class="status-dot"></span>
+                <span class="brand">NEURAL CORE</span>
+            </div>
         </header>
 
         <main class="chat" id="chatContainer">
-            <div class="greeting" id="greeting">
-                Привет, я готов ответить на твой запрос.
+            <div class="greeting-container" id="greeting">
+                <div class="neural-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2>Система готова</h2>
+                <p>Выберите модель и задайте вопрос.</p>
             </div>
         </main>
 
         <div class="input-panel">
-            <button class="model-trigger" id="modelIsland" type="button" aria-label="Выбор модели">
-                <span class="model-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" role="img" focusable="false">
-                        <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>
-                    </svg>
-                </span>
-                <span class="chevron">▾</span>
-                <span class="visually-hidden" id="currentModelLabel">Grok-4 Fast</span>
-            </button>
+            <div class="input-controls">
+                <button class="model-trigger" id="modelIsland" type="button" aria-label="Выбор модели">
+                    <span class="model-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                            <path d="M2 17L12 22L22 17"/>
+                            <path d="M2 12L12 17L22 12"/>
+                        </svg>
+                    </span>
+                    <span class="model-name" id="currentModelLabel">Grok-4 Fast</span>
+                </button>
+            </div>
 
             <div class="input-shell">
-                <textarea id="query" placeholder="Хуйни запрос..." autocomplete="off"></textarea>
+                <textarea id="query" placeholder="Введите запрос..." rows="1"></textarea>
                 <button id="sendBtn" type="button" aria-label="Отправить">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 11.3 19.2 4.7c.9-.4 1.9.5 1.5 1.4l-2.6 6.3c-.1.3-.1.7 0 1l2.6 6.3c.4.9-.6 1.8-1.5 1.4L4 13.7c-.9-.4-.9-1.7 0-2.1z" fill="currentColor"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
                     </svg>
                 </button>
             </div>

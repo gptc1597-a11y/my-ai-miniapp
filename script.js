@@ -1,16 +1,10 @@
 // Инициализация Telegram WebApp
-Telegram.WebApp.ready();
-Telegram.WebApp.expand();
-Telegram.WebApp.MainButton.hide();
-
-// Настройки markdown: сохраняем спецсимволы и заголовки без id
-if (typeof marked !== 'undefined') {
-    marked.setOptions({
-        gfm: true,
-        breaks: true,
-        mangle: false,
-        headerIds: false
-    });
+if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    // Адаптация цвета хедера под тему
+    Telegram.WebApp.setHeaderColor('#090a0c'); 
+    Telegram.WebApp.setBackgroundColor('#090a0c');
 }
 
 // Элементы DOM
@@ -21,55 +15,29 @@ const greeting = document.getElementById('greeting');
 const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
 
-// Очередь для отложенной типографики MathJax
-const pendingMathNodes = [];
-
-function tryTypesetMath() {
-    if (!window.MathJax || !MathJax.typesetPromise) return;
-    if (!pendingMathNodes.length) return;
-    const nodes = pendingMathNodes.splice(0, pendingMathNodes.length);
-    MathJax.typesetPromise(nodes).catch((err) => console.warn('MathJax render error', err));
-}
-
-// Периодическая проверка готовности MathJax (на случай ранних сообщений)
-const mathReadyInterval = setInterval(() => {
-    if (window.MathJax?.typesetPromise && window.MathJax?.startup?.promise) {
-        window.MathJax.startup.promise.then(() => {
-            tryTypesetMath();
-        });
-        clearInterval(mathReadyInterval);
-    }
-}, 300);
-
-// Автоматическое изменение высоты текстового поля
-const BASE_TEXTAREA_HEIGHT = 56;
-const MAX_TEXTAREA_RATIO = 0.33;
-
-function autoResizeTextarea() {
-    const viewport = Math.max(window.innerHeight || document.documentElement.clientHeight || 0, 0);
-    const maxHeight = Math.floor(viewport * MAX_TEXTAREA_RATIO);
-    const minHeight = BASE_TEXTAREA_HEIGHT;
-    queryInput.style.height = 'auto';
-    const next = Math.min(maxHeight, Math.max(minHeight, queryInput.scrollHeight));
-    queryInput.style.height = `${next}px`;
-    queryInput.style.overflowY = queryInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
+// Конфигурация Markdown
+if (typeof marked !== 'undefined') {
+    marked.setOptions({
+        gfm: true,
+        breaks: true,
+        headerIds: false,
+        mangle: false
+    });
 }
 
 // Модели
 const models = [
-    { id: "gpt-5-chat-latest", label: "GPT-5 Chat", tag: "GPT", logo: "GPT" },
-    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking", tag: "GPT", logo: "GPT" },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", tag: "Gemini", logo: "G2" },
-    { id: "grok-4-fast", label: "Grok-4 Fast", tag: "Grok", logo: "GR" },
-    { id: "grok-4", label: "Grok-4", tag: "Grok", logo: "GR4" },
-    { id: "grok-3-reasoner", label: "Grok-3 Reasoner", tag: "Grok", logo: "GR3" },
-    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet", tag: "Claude", logo: "CL" },
-    { id: "claude-sonnet-4-5-20250929-thinking", label: "Claude Sonnet (Thinking)", tag: "Claude", logo: "CL" }
+    { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
+    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
+    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+    { id: "grok-4-fast", label: "Grok-4 Fast" },
+    { id: "grok-4", label: "Grok-4" },
+    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" }
 ];
 
 let currentModel = "grok-4-fast";
 
-// Создание меню выбора модели
+// --- Меню моделей ---
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
@@ -79,94 +47,149 @@ function renderModelMenu() {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = `model-menu-item${model.id === currentModel ? ' active' : ''}`;
-        item.innerHTML = `
-            <span class="icon">${model.logo}</span>
-            <span class="info">
-                <span class="name">${model.label}</span>
-                <span class="tag">${model.tag}</span>
-            </span>
-            <span class="dot"></span>
-        `;
+        item.textContent = model.label;
+        if (model.id === currentModel) {
+            const check = document.createElement('span');
+            check.innerHTML = '●';
+            check.style.fontSize = '10px';
+            item.appendChild(check);
+        }
+        
         item.addEventListener('click', () => {
             currentModel = model.id;
             currentModelLabel.textContent = model.label;
             renderModelMenu();
             modelMenu.classList.remove('visible');
-            modelIsland.classList.remove('active');
         });
         modelMenu.appendChild(item);
     });
 }
 
 renderModelMenu();
-currentModelLabel.textContent = models.find((m) => m.id === currentModel)?.label || models[0].label;
-modelIsland.appendChild(modelMenu);
+// Вставляем меню перед панелью ввода, чтобы позиционировать относительно modelIsland
+document.querySelector('.input-panel').appendChild(modelMenu);
 
-// Переключение меню
 modelIsland.addEventListener('click', (e) => {
-    if (!modelMenu.contains(e.target)) {
-        const willShow = !modelMenu.classList.contains('visible');
-        modelMenu.classList.toggle('visible', willShow);
-        modelIsland.classList.toggle('active', willShow);
-        setTimeout(() => {
-            const rect = modelIsland.getBoundingClientRect();
-            modelMenu.style.bottom = `${rect.height + 12}px`;
-            modelMenu.style.left = '0';
-            modelMenu.style.right = 'auto';
-        }, 0);
-    }
+    e.stopPropagation();
+    const rect = modelIsland.getBoundingClientRect();
+    modelMenu.style.left = `${rect.left}px`;
+    modelMenu.style.bottom = `${window.innerHeight - rect.top + 8}px`; // Позиционируем над кнопкой
+    modelMenu.classList.toggle('visible');
 });
 
-// Закрытие меню при клике вне
 document.addEventListener('click', (e) => {
-    if (!modelIsland.contains(e.target) && !modelMenu.contains(e.target)) {
+    if (!modelMenu.contains(e.target) && !modelIsland.contains(e.target)) {
         modelMenu.classList.remove('visible');
-        modelIsland.classList.remove('active');
     }
 });
 
-// Добавление сообщения
-function formatAssistantMessage(text) {
-    if (!text) return '';
-    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-        const parsed = marked.parse(text, { breaks: true });
-        return DOMPurify.sanitize(parsed);
-    }
-    return text.replace(/\n/g, '<br>');
+// --- Обработка ввода ---
+const autoResizeTextarea = () => {
+    queryInput.style.height = 'auto';
+    queryInput.style.height = Math.min(queryInput.scrollHeight, 120) + 'px';
+};
+
+queryInput.addEventListener('input', autoResizeTextarea);
+
+// --- Логика сообщений и формул ---
+
+// 1. Защита формул от Markdown парсера
+function escapeMath(text) {
+    // Временное хранилище для формул
+    const mathStore = [];
+    
+    // Заменяем $$...$$ (display math)
+    text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
+        const id = `__MATH_BLOCK_${mathStore.length}__`;
+        mathStore.push({ id, content: `$$${content}$$` });
+        return id;
+    });
+
+    // Заменяем \(...\) и $...$ (inline math)
+    // Важно: $...$ может встречаться в обычном тексте, поэтому используем строгую проверку или полагаемся на структуру
+    text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+        const id = `__MATH_BLOCK_${mathStore.length}__`;
+        mathStore.push({ id, content: `$$${content}$$` }); // MathJax понимает $$ для блока
+        return id;
+    });
+
+    text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+        const id = `__MATH_INLINE_${mathStore.length}__`;
+        mathStore.push({ id, content: `\\(${content}\\)` });
+        return id;
+    });
+    
+    // Осторожная замена $...$ для inline, исключая экранированные \$
+    text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
+        const id = `__MATH_INLINE_${mathStore.length}__`;
+        mathStore.push({ id, content: `$${content}$` });
+        return id;
+    });
+
+    return { text, mathStore };
+}
+
+// 2. Восстановление формул после Markdown
+function unescapeMath(html, mathStore) {
+    mathStore.forEach(item => {
+        html = html.replace(item.id, item.content);
+    });
+    return html;
 }
 
 function addMessage(text, isUser = false) {
     const div = document.createElement('div');
     div.className = `message ${isUser ? 'user' : 'assistant'}`;
+
     if (isUser) {
         div.textContent = text;
     } else {
-        div.innerHTML = formatAssistantMessage(text);
+        if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+            // Шаг 1: Спрятать формулы
+            const { text: safeText, mathStore } = escapeMath(text);
+            // Шаг 2: Рендер Markdown
+            let rawHtml = marked.parse(safeText);
+            // Шаг 3: Вернуть формулы
+            rawHtml = unescapeMath(rawHtml, mathStore);
+            // Шаг 4: Санитизация (разрешаем mathjax теги если нужно, но обычно они просто текст на этом этапе)
+            div.innerHTML = DOMPurify.sanitize(rawHtml);
+        } else {
+            div.textContent = text;
+        }
     }
+
     chatContainer.appendChild(div);
-    pendingMathNodes.push(div);
-    tryTypesetMath();
+    
+    // Рендер формул в новом сообщении
+    if (!isUser && window.MathJax) {
+        MathJax.typesetPromise([div]).catch(err => console.log('MathJax Error:', err));
+    }
+
+    // Скролл вниз
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Отправка запроса
+// --- Отправка запроса ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
 
-    // Скрываем приветствие
-    greeting.classList.add('hidden');
+    if (!greeting.classList.contains('hidden')) {
+        greeting.classList.add('hidden');
+    }
 
-    // Запрос пользователя
     addMessage(query, true);
     queryInput.value = '';
-    autoResizeTextarea();
+    queryInput.style.height = 'auto'; // Сброс высоты
+    queryInput.focus();
 
-    // Индикатор загрузки
-    const loading = document.createElement('div');
-    loading.className = 'message';
-    loading.textContent = '⏳ Обработка...';
-    chatContainer.appendChild(loading);
+    // Создаем пузырь загрузки
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message assistant';
+    loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+    chatContainer.appendChild(loadingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
         const res = await fetch('https://my-ai-miniapp.onrender.com/api/ask', {
@@ -174,34 +197,33 @@ async function sendRequest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: currentModel,
-                query,
-                user_id: Telegram.WebApp.initDataUnsafe?.user?.id || 'anonymous'
+                query: query,
+                // Передаем ID пользователя если есть, иначе аноним
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anon'
             })
         });
 
+        chatContainer.removeChild(loadingDiv);
         const data = await res.json();
-        chatContainer.removeChild(loading);
 
         if (res.ok) {
-            addMessage(data.answer || 'Пустой ответ');
+            addMessage(data.answer);
         } else {
-            addMessage(`❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`);
+            addMessage(`Ошибка: ${data.error || 'Не удалось получить ответ'}`);
         }
+
     } catch (e) {
-        chatContainer.removeChild(loading);
-        addMessage(`❌ Ошибка подключения: ${e.message}`);
+        if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
+        addMessage(`Ошибка сети: ${e.message}`);
     }
 }
 
-// Обработчики
+// События
 sendBtn.addEventListener('click', sendRequest);
-queryInput.addEventListener('input', autoResizeTextarea);
-queryInput.addEventListener('keypress', (e) => {
+
+queryInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendRequest();
     }
 });
-
-window.addEventListener('resize', autoResizeTextarea);
-autoResizeTextarea();
