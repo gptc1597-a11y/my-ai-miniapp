@@ -192,7 +192,7 @@ async function sendRequest() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const res = await fetch('https://my-ai-miniapp.onrender.com/api/ask', {
+        const res = await fetch('https://markov-ai-project.localtunnel.me/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
