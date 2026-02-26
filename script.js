@@ -192,7 +192,7 @@ async function sendRequest() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const res = await fetch('https://0323d9a14b3afc.lhr.life/api/ask', {
+        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
