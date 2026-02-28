@@ -36,13 +36,6 @@
 </head>
 <body>
     <div class="app">
-        <header class="topbar">
-            <div class="brand-container">
-                <span class="status-dot"></span>
-                <span class="brand">NEURAL CORE</span>
-            </div>
-        </header>
-
         <main class="chat" id="chatContainer">
             <div class="greeting-container" id="greeting">
                 <div class="neural-logo">
@@ -72,7 +65,9 @@
             </div>
 
             <div class="input-shell">
-                <textarea id="query" placeholder="Введите запрос..." rows="1"></textarea>
+                <div class="query-wrapper">
+                    <textarea id="query" placeholder="Введите запрос..." rows="1"></textarea>
+                </div>
                 <button id="sendBtn" type="button" aria-label="Отправить">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="19" x2="12" y2="5"></line>

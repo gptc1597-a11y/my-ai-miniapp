@@ -86,7 +86,7 @@ document.addEventListener('click', (e) => {
 // --- Обработка ввода ---
 const autoResizeTextarea = () => {
     queryInput.style.height = 'auto';
-    queryInput.style.height = Math.min(queryInput.scrollHeight, 120) + 'px';
+    queryInput.style.height = queryInput.scrollHeight + 'px';
 };
 
 queryInput.addEventListener('input', autoResizeTextarea);
