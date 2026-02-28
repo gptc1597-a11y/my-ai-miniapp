@@ -95,21 +95,17 @@ queryInput.addEventListener('input', autoResizeTextarea);
 
 // 1. Защита формул от Markdown парсера
 function escapeMath(text) {
-    // Временное хранилище для формул
     const mathStore = [];
     
-    // Заменяем $$...$$ (display math)
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
         const id = `__MATH_BLOCK_${mathStore.length}__`;
         mathStore.push({ id, content: `$$${content}$$` });
         return id;
     });
 
-    // Заменяем \(...\) и $...$ (inline math)
-    // Важно: $...$ может встречаться в обычном тексте, поэтому используем строгую проверку или полагаемся на структуру
     text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
         const id = `__MATH_BLOCK_${mathStore.length}__`;
-        mathStore.push({ id, content: `$$${content}$$` }); // MathJax понимает $$ для блока
+        mathStore.push({ id, content: `$$${content}$$` }); 
         return id;
     });
 
@@ -119,7 +115,6 @@ function escapeMath(text) {
         return id;
     });
     
-    // Осторожная замена $...$ для inline, исключая экранированные \$
     text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
         const id = `__MATH_INLINE_${mathStore.length}__`;
         mathStore.push({ id, content: `$${content}$` });
@@ -138,6 +133,15 @@ function unescapeMath(html, mathStore) {
 }
 
 function addMessage(text, isUser = false) {
+    // ИСПРАВЛЕНИЕ 1: Жесткая защита от undefined. Если пришла пустота, ставим заглушку.
+    if (text === undefined || text === null) {
+        text = "⚠️ Ошибка: получен пустой ответ. Проверьте логи бэкенда.";
+    }
+    // Гарантируем, что дальше по коду идет только строка
+    if (typeof text !== 'string') {
+        text = JSON.stringify(text);
+    }
+
     const div = document.createElement('div');
     div.className = `message ${isUser ? 'user' : 'assistant'}`;
 
@@ -145,13 +149,9 @@ function addMessage(text, isUser = false) {
         div.textContent = text;
     } else {
         if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-            // Шаг 1: Спрятать формулы
             const { text: safeText, mathStore } = escapeMath(text);
-            // Шаг 2: Рендер Markdown
             let rawHtml = marked.parse(safeText);
-            // Шаг 3: Вернуть формулы
             rawHtml = unescapeMath(rawHtml, mathStore);
-            // Шаг 4: Санитизация (разрешаем mathjax теги если нужно, но обычно они просто текст на этом этапе)
             div.innerHTML = DOMPurify.sanitize(rawHtml);
         } else {
             div.textContent = text;
@@ -160,12 +160,10 @@ function addMessage(text, isUser = false) {
 
     chatContainer.appendChild(div);
     
-    // Рендер формул в новом сообщении
     if (!isUser && window.MathJax) {
         MathJax.typesetPromise([div]).catch(err => console.log('MathJax Error:', err));
     }
 
-    // Скролл вниз
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
@@ -181,10 +179,9 @@ async function sendRequest() {
 
     addMessage(query, true);
     queryInput.value = '';
-    queryInput.style.height = 'auto'; // Сброс высоты
+    queryInput.style.height = 'auto'; 
     queryInput.focus();
 
-    // Создаем пузырь загрузки
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'message assistant';
     loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
@@ -197,9 +194,10 @@ async function sendRequest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: currentModel,
-                query: query,
-                // Передаем ID пользователя если есть, иначе аноним
-                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anon'
+                // ИСПРАВЛЕНИЕ 2: Возвращаем ключ 'question', как этого ждет FastAPI
+                question: query, 
+                // ИСПРАВЛЕНИЕ 3: Передаем число 12345 вместо строки 'anon' для тестов
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
             })
         });
 
@@ -207,9 +205,15 @@ async function sendRequest() {
         const data = await res.json();
 
         if (res.ok) {
-            addMessage(data.answer);
+            // ИСПРАВЛЕНИЕ 4: Проверяем, не вернул ли бэкенд ошибку со статусом 200
+            if (data.error) {
+                addMessage(`Ошибка сервера: ${data.error}`);
+            } else {
+                addMessage(data.answer);
+            }
         } else {
-            addMessage(`Ошибка: ${data.error || 'Не удалось получить ответ'}`);
+            // Если FastAPI отбил запрос (ошибка 422), выводим детали
+            addMessage(`Ошибка: ${data.error || JSON.stringify(data.detail) || 'Не удалось получить ответ'}`);
         }
 
     } catch (e) {
