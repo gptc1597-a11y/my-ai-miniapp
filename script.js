@@ -66,14 +66,14 @@ function renderModelMenu() {
 }
 
 renderModelMenu();
-// Вставляем меню перед панелью ввода, чтобы позиционировать относительно modelIsland
+// Вставляем меню перед панелью ввода
 document.querySelector('.input-panel').appendChild(modelMenu);
 
 modelIsland.addEventListener('click', (e) => {
     e.stopPropagation();
     const rect = modelIsland.getBoundingClientRect();
     modelMenu.style.left = `${rect.left}px`;
-    modelMenu.style.bottom = `${window.innerHeight - rect.top + 8}px`; // Позиционируем над кнопкой
+    modelMenu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
     modelMenu.classList.toggle('visible');
 });
 
@@ -124,7 +124,7 @@ function escapeMath(text) {
     return { text, mathStore };
 }
 
-// 2. Восстановление формул после Markdown
+// 2. Восстановление формул
 function unescapeMath(html, mathStore) {
     mathStore.forEach(item => {
         html = html.replace(item.id, item.content);
@@ -133,11 +133,10 @@ function unescapeMath(html, mathStore) {
 }
 
 function addMessage(text, isUser = false) {
-    // ИСПРАВЛЕНИЕ 1: Жесткая защита от undefined. Если пришла пустота, ставим заглушку.
+    // Жесткая защита от undefined
     if (text === undefined || text === null) {
         text = "⚠️ Ошибка: получен пустой ответ. Проверьте логи бэкенда.";
     }
-    // Гарантируем, что дальше по коду идет только строка
     if (typeof text !== 'string') {
         text = JSON.stringify(text);
     }
@@ -194,9 +193,7 @@ async function sendRequest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: currentModel,
-                // ИСПРАВЛЕНИЕ 2: Возвращаем ключ 'question', как этого ждет FastAPI
-                question: query, 
-                // ИСПРАВЛЕНИЕ 3: Передаем число 12345 вместо строки 'anon' для тестов
+                query: query, // Отправляем правильный ключ для бэкенда
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
             })
         });
@@ -205,14 +202,12 @@ async function sendRequest() {
         const data = await res.json();
 
         if (res.ok) {
-            // ИСПРАВЛЕНИЕ 4: Проверяем, не вернул ли бэкенд ошибку со статусом 200
             if (data.error) {
                 addMessage(`Ошибка сервера: ${data.error}`);
             } else {
                 addMessage(data.answer);
             }
         } else {
-            // Если FastAPI отбил запрос (ошибка 422), выводим детали
             addMessage(`Ошибка: ${data.error || JSON.stringify(data.detail) || 'Не удалось получить ответ'}`);
         }
 
