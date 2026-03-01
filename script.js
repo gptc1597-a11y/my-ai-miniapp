@@ -1,30 +1,23 @@
-// --- Безопасная инициализация Telegram ---
-try {
-    const setViewportHeight = () => {
-        const vh = window.Telegram?.WebApp?.viewportHeight || window.innerHeight;
-        document.documentElement.style.setProperty('--tg-viewport-height', `${vh}px`);
-    };
+// --- Синхронизация высоты для Telegram Mini App ---
+const setViewportHeight = () => {
+    const vh = window.Telegram?.WebApp?.viewportHeight || window.innerHeight;
+    document.documentElement.style.setProperty('--tg-viewport-height', `${vh}px`);
+};
 
-    if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#090a0c'); 
-        tg.setBackgroundColor('#090a0c');
-        
-        // Жесткая защита: не все версии Telegram API имеют функцию onEvent
-        if (typeof tg.onEvent === 'function') {
-            tg.onEvent('viewportChanged', setViewportHeight);
-        }
+if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('#090a0c'); 
+    tg.setBackgroundColor('#090a0c');
+    if (typeof tg.onEvent === 'function') {
+        tg.onEvent('viewportChanged', setViewportHeight);
     }
-
-    setViewportHeight();
-    window.addEventListener('resize', setViewportHeight);
-} catch (e) {
-    console.error("Ошибка инициализации Telegram API:", e);
 }
+setViewportHeight();
+window.addEventListener('resize', setViewportHeight);
 
-// --- Элементы DOM и Глобальные переменные ---
+// --- Элементы DOM ---
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
 const chatContainer = document.getElementById('chatContainer');
@@ -38,13 +31,15 @@ const closeChatsBtn = document.getElementById('closeChatsBtn');
 const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+// !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!!
+const TUNA_URL = "https://ТВОЙ_АДРЕС_ИЗ_ТЮНЫ.ru.tuna.am";
+
 let currentChatId = null; 
 
 if (typeof marked !== 'undefined') {
     marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
 }
 
-// Модели
 const models = [
     { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
     { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
@@ -55,7 +50,6 @@ const models = [
 ];
 let currentModel = "grok-4-fast";
 
-// --- Меню моделей ---
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
@@ -99,7 +93,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- Боковая панель чатов ---
 function toggleSidebar() {
     const isOpen = chatsSidebar.classList.contains('open');
     if (isOpen) {
@@ -118,14 +111,13 @@ sidebarOverlay.addEventListener('click', toggleSidebar);
 async function loadChats() {
     chatsList.innerHTML = '<div class="loading-dots" style="margin: 20px auto;"><span></span><span></span><span></span></div>';
     try {
-        const res = await fetch('https://xui-ai.ru.tuna.am/api/chats', {
+        const res = await fetch(`${TUNA_URL}/api/chats`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
             })
         });
-        if (!res.ok) throw new Error('Ошибка загрузки');
         const data = await res.json();
         chatsList.innerHTML = '';
         
@@ -142,7 +134,7 @@ async function loadChats() {
         });
         chatsList.appendChild(newChatBtn);
 
-        if (data.chats && data.chats.length > 0) {
+        if (data.chats) {
             data.chats.forEach(chat => {
                 const item = document.createElement('div');
                 item.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
@@ -163,19 +155,16 @@ async function loadChatHistory(chatId) {
     currentChatId = chatId;
     chatContainer.innerHTML = ''; 
     greeting.classList.add('hidden');
-
     try {
-        const res = await fetch(`https://xui-ai.ru.tuna.am/api/messages/${chatId}`);
+        const res = await fetch(`${TUNA_URL}/api/messages/${chatId}`);
         const data = await res.json();
         data.messages.forEach(msg => {
             if (msg.role !== 'system') addMessage(msg.content, msg.role === 'user');
         });
-    } catch (e) {
-        console.error("Ошибка загрузки истории", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
-// --- Автоулучшение промпта ---
+// --- ИСПРАВЛЕННАЯ КНОПКА УЛУЧШЕНИЯ ---
 enhanceBtn.addEventListener('click', async () => {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -185,7 +174,7 @@ enhanceBtn.addEventListener('click', async () => {
     enhanceBtn.disabled = true;
 
     try {
-        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
+        const res = await fetch(`${TUNA_URL}/api/ask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -199,10 +188,11 @@ enhanceBtn.addEventListener('click', async () => {
         const data = await res.json();
         if (res.ok && data.answer) {
             queryInput.value = data.answer.trim();
-            autoResizeTextarea();
+            queryInput.style.height = 'auto';
+            queryInput.style.height = queryInput.scrollHeight + 'px';
         }
     } catch (e) {
-        console.error('Ошибка сети:', e);
+        console.error('Ошибка кнопки улучшения:', e);
     } finally {
         enhanceBtn.innerHTML = originalIcon;
         enhanceBtn.disabled = false;
@@ -215,27 +205,12 @@ const autoResizeTextarea = () => {
 };
 queryInput.addEventListener('input', autoResizeTextarea);
 
-// --- Обработка формул ---
 function escapeMath(text) {
+    if (!text) return { text: "", mathStore: [] };
     const mathStore = [];
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
         const id = `__MATH_BLOCK_${mathStore.length}__`;
         mathStore.push({ id, content: `$$${content}$$` });
-        return id;
-    });
-    text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
-        const id = `__MATH_BLOCK_${mathStore.length}__`;
-        mathStore.push({ id, content: `$$${content}$$` });
-        return id;
-    });
-    text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-        const id = `__MATH_INLINE_${mathStore.length}__`;
-        mathStore.push({ id, content: `\\(${content}\\)` });
-        return id;
-    });
-    text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
-        const id = `__MATH_INLINE_${mathStore.length}__`;
-        mathStore.push({ id, content: `$${content}$` });
         return id;
     });
     return { text, mathStore };
@@ -246,61 +221,38 @@ function unescapeMath(html, mathStore) {
     return html;
 }
 
-// --- Отрисовка сообщений ---
 function addMessage(text, isUser = false) {
-    if (text === undefined || text === null) {
-        text = "⚠️ Ошибка: получен пустой ответ от сервера.";
-    }
-    if (typeof text !== 'string') {
-        text = JSON.stringify(text);
-    }
-
+    if (text === undefined || text === null) text = "⚠️ Ошибка: пустой ответ.";
     const div = document.createElement('div');
     div.className = `message ${isUser ? 'user' : 'assistant'}`;
-
     if (isUser) {
         div.textContent = text;
     } else {
-        if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-            const { text: safeText, mathStore } = escapeMath(text);
-            let rawHtml = marked.parse(safeText);
-            rawHtml = unescapeMath(rawHtml, mathStore);
-            div.innerHTML = DOMPurify.sanitize(rawHtml);
-        } else {
-            div.textContent = text;
-        }
+        const { text: safeText, mathStore } = escapeMath(text);
+        let rawHtml = typeof marked !== 'undefined' ? marked.parse(safeText) : safeText;
+        rawHtml = unescapeMath(rawHtml, mathStore);
+        div.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(rawHtml) : rawHtml;
     }
-
     chatContainer.appendChild(div);
-    if (!isUser && window.MathJax) {
-        MathJax.typesetPromise([div]).catch(err => console.log('MathJax Error:', err));
-    }
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    if (!isUser && window.MathJax) MathJax.typesetPromise([div]);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// --- Отправка запроса ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
-
-    if (!greeting.classList.contains('hidden')) {
-        greeting.classList.add('hidden');
-    }
-
+    if (!greeting.classList.contains('hidden')) greeting.classList.add('hidden');
     addMessage(query, true);
     queryInput.value = '';
     queryInput.style.height = 'auto';
-    queryInput.focus();
 
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'message assistant';
     loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
     chatContainer.appendChild(loadingDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
+        const res = await fetch(`${TUNA_URL}/api/ask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -310,15 +262,13 @@ async function sendRequest() {
                 chat_id: currentChatId 
             })
         });
-
         chatContainer.removeChild(loadingDiv);
         const data = await res.json();
-
         if (res.ok) {
             if (data.chat_id) currentChatId = data.chat_id;
             addMessage(data.answer);
         } else {
-            addMessage(`Ошибка: ${data.error || 'Не удалось получить ответ'}`);
+            addMessage(`Ошибка: ${data.error}`);
         }
     } catch (e) {
         if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
@@ -328,8 +278,5 @@ async function sendRequest() {
 
 sendBtn.addEventListener('click', sendRequest);
 queryInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendRequest();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendRequest(); }
 });
