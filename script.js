@@ -1,25 +1,28 @@
-// --- Синхронизация высоты для Telegram Mini App ---
-const setViewportHeight = () => {
-    // Получаем реальную высоту от Telegram (с учетом клавиатуры) или от браузера
-    const vh = window.Telegram?.WebApp?.viewportHeight || window.innerHeight;
-    document.documentElement.style.setProperty('--tg-viewport-height', `${vh}px`);
-};
+// --- Безопасная инициализация Telegram ---
+try {
+    const setViewportHeight = () => {
+        const vh = window.Telegram?.WebApp?.viewportHeight || window.innerHeight;
+        document.documentElement.style.setProperty('--tg-viewport-height', `${vh}px`);
+    };
 
-// Инициализация Telegram WebApp
-if (window.Telegram && Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    tg.setHeaderColor('#090a0c'); 
-    tg.setBackgroundColor('#090a0c');
-    
-    // Пересчитываем высоту, когда открывается/закрывается клавиатура
-    tg.onEvent('viewportChanged', setViewportHeight);
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#090a0c'); 
+        tg.setBackgroundColor('#090a0c');
+        
+        // Жесткая защита: не все версии Telegram API имеют функцию onEvent
+        if (typeof tg.onEvent === 'function') {
+            tg.onEvent('viewportChanged', setViewportHeight);
+        }
+    }
+
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+} catch (e) {
+    console.error("Ошибка инициализации Telegram API:", e);
 }
-
-// Запускаем пересчет сразу при загрузке
-setViewportHeight();
-window.addEventListener('resize', setViewportHeight);
 
 // --- Элементы DOM и Глобальные переменные ---
 const sendBtn = document.getElementById('sendBtn');
@@ -35,7 +38,7 @@ const closeChatsBtn = document.getElementById('closeChatsBtn');
 const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-let currentChatId = null; // Глобальная память для чатов
+let currentChatId = null; 
 
 if (typeof marked !== 'undefined') {
     marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
@@ -115,7 +118,7 @@ sidebarOverlay.addEventListener('click', toggleSidebar);
 async function loadChats() {
     chatsList.innerHTML = '<div class="loading-dots" style="margin: 20px auto;"><span></span><span></span><span></span></div>';
     try {
-        const res = await fetch('/api/chats', {
+        const res = await fetch('https://xui-ai.ru.tuna.am/api/chats', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -126,7 +129,6 @@ async function loadChats() {
         const data = await res.json();
         chatsList.innerHTML = '';
         
-        // Кнопка нового чата
         const newChatBtn = document.createElement('div');
         newChatBtn.className = 'chat-item';
         newChatBtn.style.border = '1px dashed var(--primary)';
@@ -163,7 +165,7 @@ async function loadChatHistory(chatId) {
     greeting.classList.add('hidden');
 
     try {
-        const res = await fetch(`/api/messages/${chatId}`);
+        const res = await fetch(`https://xui-ai.ru.tuna.am/api/messages/${chatId}`);
         const data = await res.json();
         data.messages.forEach(msg => {
             if (msg.role !== 'system') addMessage(msg.content, msg.role === 'user');
@@ -183,7 +185,7 @@ enhanceBtn.addEventListener('click', async () => {
     enhanceBtn.disabled = true;
 
     try {
-        const res = await fetch('/api/ask', {
+        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -298,7 +300,7 @@ async function sendRequest() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const res = await fetch('/api/ask', {
+        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
