@@ -32,7 +32,7 @@ const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 // !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!!
-const TUNA_URL = "https://ТВОЙ_АДРЕС_ИЗ_ТЮНЫ.ru.tuna.am";
+const TUNA_URL = "https://xui-ai.ru.tuna.am";
 
 let currentChatId = null; 
 
