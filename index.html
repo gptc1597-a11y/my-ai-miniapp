@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- MathJax Config -->
     <script>
         window.MathJax = {
             tex: {
@@ -21,7 +20,7 @@
                 processHtmlClass: 'tex2jax_process'
             },
             chtml: {
-                scale: 1.1, // Чуть крупнее формулы
+                scale: 1.1,
                 fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/tex'
             }
         };
@@ -35,10 +34,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
-    <!-- Chats Sidebar -->
     <div class="chats-sidebar" id="chatsSidebar">
         <div class="chats-header">
             <h3>История чатов</h3>
@@ -102,6 +99,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="/static/script.js?v=6"></script>
 </body>
 </html>

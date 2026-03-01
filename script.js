@@ -1,11 +1,27 @@
+// --- Синхронизация высоты для Telegram Mini App ---
+const setViewportHeight = () => {
+    // Получаем реальную высоту от Telegram (с учетом клавиатуры) или от браузера
+    const vh = window.Telegram?.WebApp?.viewportHeight || window.innerHeight;
+    document.documentElement.style.setProperty('--tg-viewport-height', `${vh}px`);
+};
+
 // Инициализация Telegram WebApp
 if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    Telegram.WebApp.setHeaderColor('#090a0c'); 
-    Telegram.WebApp.setBackgroundColor('#090a0c');
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('#090a0c'); 
+    tg.setBackgroundColor('#090a0c');
+    
+    // Пересчитываем высоту, когда открывается/закрывается клавиатура
+    tg.onEvent('viewportChanged', setViewportHeight);
 }
 
+// Запускаем пересчет сразу при загрузке
+setViewportHeight();
+window.addEventListener('resize', setViewportHeight);
+
+// --- Элементы DOM и Глобальные переменные ---
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
 const chatContainer = document.getElementById('chatContainer');
@@ -19,13 +35,13 @@ const closeChatsBtn = document.getElementById('closeChatsBtn');
 const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-// Глобальная переменная для памяти чатов
-let currentChatId = null;
+let currentChatId = null; // Глобальная память для чатов
 
 if (typeof marked !== 'undefined') {
     marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
 }
 
+// Модели
 const models = [
     { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
     { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
@@ -36,6 +52,7 @@ const models = [
 ];
 let currentModel = "grok-4-fast";
 
+// --- Меню моделей ---
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
@@ -79,6 +96,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// --- Боковая панель чатов ---
 function toggleSidebar() {
     const isOpen = chatsSidebar.classList.contains('open');
     if (isOpen) {
@@ -115,7 +133,7 @@ async function loadChats() {
         newChatBtn.textContent = '+ Создать новый чат';
         newChatBtn.addEventListener('click', () => {
             currentChatId = null;
-            chatContainer.innerHTML = ''; // Очищаем экран
+            chatContainer.innerHTML = ''; 
             chatContainer.appendChild(greeting);
             greeting.classList.remove('hidden');
             toggleSidebar();
@@ -155,6 +173,7 @@ async function loadChatHistory(chatId) {
     }
 }
 
+// --- Автоулучшение промпта ---
 enhanceBtn.addEventListener('click', async () => {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -171,7 +190,7 @@ enhanceBtn.addEventListener('click', async () => {
                 model: currentModel,
                 query: `Улучши промпт. Выведи ТОЛЬКО текст:\n\n${query}`,
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
-                is_system_action: true // Флаг, чтобы бэкенд не сохранял это в историю
+                is_system_action: true 
             })
         });
 
@@ -194,6 +213,7 @@ const autoResizeTextarea = () => {
 };
 queryInput.addEventListener('input', autoResizeTextarea);
 
+// --- Обработка формул ---
 function escapeMath(text) {
     const mathStore = [];
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
@@ -224,8 +244,8 @@ function unescapeMath(html, mathStore) {
     return html;
 }
 
+// --- Отрисовка сообщений ---
 function addMessage(text, isUser = false) {
-    // БРОНЯ ОТ UNDEFINED
     if (text === undefined || text === null) {
         text = "⚠️ Ошибка: получен пустой ответ от сервера.";
     }
@@ -257,6 +277,7 @@ function addMessage(text, isUser = false) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+// --- Отправка запроса ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -284,7 +305,7 @@ async function sendRequest() {
                 model: currentModel,
                 query: query,
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
-                chat_id: currentChatId // Отправляем ID текущего чата
+                chat_id: currentChatId 
             })
         });
 
@@ -292,7 +313,6 @@ async function sendRequest() {
         const data = await res.json();
 
         if (res.ok) {
-            // Если это был первый вопрос, бэкенд вернет новый chat_id
             if (data.chat_id) currentChatId = data.chat_id;
             addMessage(data.answer);
         } else {

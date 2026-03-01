@@ -1,15 +1,12 @@
 :root {
     --bg-dark: #090a0c;
     --bg-panel: rgba(22, 23, 26, 0.8);
-    /* ИЗМЕНЕНО: Голубой акцент */
     --primary: #2D9CDB;
-    /* ИЗМЕНЕНО: RGBA версия голубого */
     --primary-dim: rgba(45, 156, 219, 0.15);
     --text-main: #f0f2f5;
     --text-muted: #8b929e;
     --border: rgba(255, 255, 255, 0.08);
     --glass-border: rgba(255, 255, 255, 0.06);
-    /* ИЗМЕНЕНО: Градиент от голубого к более темному синему */
     --message-user-bg: linear-gradient(135deg, #2D9CDB 0%, #1A7FB0 100%);
     --message-bot-bg: rgba(255, 255, 255, 0.03);
     --radius-lg: 24px;
@@ -18,6 +15,8 @@
     --font-main: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-code: "JetBrains Mono", monospace;
     --safe-area-bottom: env(safe-area-inset-bottom);
+    /* Переменная, которую будет менять JS при выезде клавиатуры */
+    --tg-viewport-height: 100vh; 
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,12 +24,11 @@
 body {
     background-color: var(--bg-dark);
     background-image: 
-        /* ИЗМЕНЕНО: Фоновое свечение теперь голубое */
         radial-gradient(circle at 10% 20%, rgba(45, 156, 219, 0.06) 0%, transparent 40%),
         radial-gradient(circle at 90% 80%, rgba(61, 73, 255, 0.06) 0%, transparent 40%);
     color: var(--text-main);
     font-family: var(--font-main);
-    height: 100dvh; /* Dynamic viewport height */
+    height: var(--tg-viewport-height); 
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -40,17 +38,16 @@ body {
     width: 100%;
     max-width: 100%;
     height: 100%;
-    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Строгая колонка */
     background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(0,0,0,0.2) 100%);
 }
 
 /* --- Chat Area --- */
 .chat {
-    flex: 1;
+    flex: 1 1 auto; /* Занимает всё свободное место */
     overflow-y: auto;
-    padding: 1rem 1rem calc(180px + var(--safe-area-bottom));
+    padding: 1rem 1rem 0 1rem; /* Убрали огромный отступ снизу */
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -72,9 +69,7 @@ body {
     animation: fadeUp 0.6s ease forwards;
     padding: 2rem;
 }
-
 .greeting-container.hidden { display: none; }
-
 .neural-logo {
     width: 64px;
     height: 64px;
@@ -82,16 +77,8 @@ body {
     margin-bottom: 0.5rem;
     animation: float 4s ease-in-out infinite;
 }
-
-.greeting-container h2 {
-    font-size: 1.5rem;
-    font-weight: 800;
-}
-
-.greeting-container p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
+.greeting-container h2 { font-size: 1.5rem; font-weight: 800; }
+.greeting-container p { color: var(--text-muted); font-size: 0.95rem; }
 
 /* Messages */
 .message {
@@ -103,18 +90,14 @@ body {
     word-wrap: break-word;
     animation: messagePop 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
-
 .message.user {
     align-self: flex-end;
     background: var(--message-user-bg);
-    /* ИЗМЕНЕНО: Белый текст читается лучше на синем фоне, чем черный */
     color: #ffffff;
     border-radius: var(--radius-lg) var(--radius-lg) 2px var(--radius-lg);
-    /* ИЗМЕНЕНО: Цвет тени под цвет фона */
     box-shadow: 0 4px 15px rgba(45, 156, 219, 0.2);
     font-weight: 600;
 }
-
 .message.assistant {
     align-self: flex-start;
     background: var(--message-bot-bg);
@@ -122,8 +105,6 @@ body {
     border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 2px;
     color: var(--text-main);
 }
-
-/* Markdown Styling inside Assistant Messages */
 .message.assistant p { margin-bottom: 0.8em; }
 .message.assistant p:last-child { margin-bottom: 0; }
 .message.assistant strong { font-weight: 700; color: #fff; }
@@ -152,17 +133,12 @@ body {
 .message.assistant ul, .message.assistant ol { margin-left: 1.5rem; margin-bottom: 0.8rem; }
 .message.assistant li { margin-bottom: 0.3rem; }
 
-/* MathJax Overrides */
 mjx-container {
     color: var(--text-main) !important;
     font-size: 1.05em !important;
 }
 
-/* Loading Indicator */
-.loading-dots {
-    display: inline-flex;
-    gap: 4px;
-}
+.loading-dots { display: inline-flex; gap: 4px; }
 .loading-dots span {
     width: 6px;
     height: 6px;
@@ -175,9 +151,8 @@ mjx-container {
 
 /* --- Input Area --- */
 .input-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    flex: 0 0 auto; /* Не дает панели сжиматься */
+    position: relative; /* Убрали абсолютное позиционирование */
     width: 100%;
     padding: 12px 16px max(12px, var(--safe-area-bottom));
     background: transparent;
@@ -200,7 +175,6 @@ mjx-container {
     margin: 0 auto;
 }
 
-/* Model Selector */
 .model-trigger {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(16px);
@@ -219,19 +193,14 @@ mjx-container {
     cursor: pointer;
     transition: all 0.2s;
     pointer-events: auto;
-    flex: 1; /* Fill available space between buttons */
-    min-width: 0; /* Allow text truncation */
+    flex: 1; 
+    min-width: 0; 
 }
 .model-trigger:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
 .model-icon { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
 .model-icon svg { width: 100%; height: 100%; }
-.model-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.model-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Input Shell */
 .input-shell {
     position: relative;
     background: rgba(255, 255, 255, 0.1);
@@ -252,14 +221,12 @@ mjx-container {
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.06);
 }
-
 .query-wrapper {
     width: 100%;
     max-height: 120px;
     overflow-y: auto;
     direction: rtl;
 }
-
 #query {
     width: 100%;
     min-height: 48px;
@@ -276,7 +243,6 @@ mjx-container {
     overflow-y: hidden;
 }
 #query::placeholder { color: #5a606b; }
-
 #sendBtn {
     position: absolute;
     right: 6px;
@@ -312,7 +278,6 @@ mjx-container {
     pointer-events: auto;
 }
 .model-menu.visible { display: flex; animation: fadeUp 0.2s ease; }
-
 .model-menu-item {
     background: transparent;
     border: none;
@@ -328,7 +293,6 @@ mjx-container {
     justify-content: space-between;
 }
 .model-menu-item:hover { background: rgba(255,255,255,0.04); color: var(--text-main); }
-/* ИЗМЕНЕНО: Цвет подсветки активного пункта */
 .model-menu-item.active { background: rgba(45, 156, 219, 0.1); color: var(--primary); font-weight: 600; }
 
 /* Icon Button */
@@ -365,10 +329,7 @@ mjx-container {
     pointer-events: none;
     transition: opacity 0.3s;
 }
-.sidebar-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
+.sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
 
 .chats-sidebar {
     position: fixed;
@@ -386,9 +347,8 @@ mjx-container {
     display: flex;
     flex-direction: column;
 }
-.chats-sidebar.open {
-    left: 0;
-}
+.chats-sidebar.open { left: 0; }
+
 .chats-header {
     padding: 20px;
     display: flex;
@@ -396,11 +356,7 @@ mjx-container {
     align-items: center;
     border-bottom: 1px solid var(--border);
 }
-.chats-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-main);
-}
+.chats-header h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-main); }
 .close-btn {
     background: transparent;
     border: none;
@@ -413,6 +369,7 @@ mjx-container {
     justify-content: center;
 }
 .close-btn svg { width: 100%; height: 100%; }
+
 .chats-list {
     flex: 1;
     overflow-y: auto;
@@ -434,18 +391,13 @@ mjx-container {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.chat-item:hover {
-    background: rgba(255,255,255,0.06);
-}
+.chat-item:hover { background: rgba(255,255,255,0.06); }
 .chat-item.active {
     background: var(--primary-dim);
     border-color: rgba(45, 156, 219, 0.3);
     color: var(--primary);
 }
 
-/* Animations */
-/* ИЗМЕНЕНО: Анимация пульсации под новый цвет */
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(45, 156, 219, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(45, 156, 219, 0); } 100% { box-shadow: 0 0 0 0 rgba(45, 156, 219, 0); } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes messagePop { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
