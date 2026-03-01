@@ -2,30 +2,30 @@
 if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
-    // Адаптация цвета хедера под тему
     Telegram.WebApp.setHeaderColor('#090a0c'); 
     Telegram.WebApp.setBackgroundColor('#090a0c');
 }
 
-// Элементы DOM
 const sendBtn = document.getElementById('sendBtn');
 const queryInput = document.getElementById('query');
 const chatContainer = document.getElementById('chatContainer');
 const greeting = document.getElementById('greeting');
 const modelIsland = document.getElementById('modelIsland');
 const currentModelLabel = document.getElementById('currentModelLabel');
+const chatsBtn = document.getElementById('chatsBtn');
+const enhanceBtn = document.getElementById('enhanceBtn');
+const chatsSidebar = document.getElementById('chatsSidebar');
+const closeChatsBtn = document.getElementById('closeChatsBtn');
+const chatsList = document.getElementById('chatsList');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-// Конфигурация Markdown
+// Глобальная переменная для памяти чатов
+let currentChatId = null;
+
 if (typeof marked !== 'undefined') {
-    marked.setOptions({
-        gfm: true,
-        breaks: true,
-        headerIds: false,
-        mangle: false
-    });
+    marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
 }
 
-// Модели
 const models = [
     { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
     { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
@@ -34,10 +34,8 @@ const models = [
     { id: "grok-4", label: "Grok-4" },
     { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" }
 ];
-
 let currentModel = "grok-4-fast";
 
-// --- Меню моделей ---
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
 
@@ -54,7 +52,6 @@ function renderModelMenu() {
             check.style.fontSize = '10px';
             item.appendChild(check);
         }
-        
         item.addEventListener('click', () => {
             currentModel = model.id;
             currentModelLabel.textContent = model.label;
@@ -64,15 +61,14 @@ function renderModelMenu() {
         modelMenu.appendChild(item);
     });
 }
-
 renderModelMenu();
-// Вставляем меню перед панелью ввода
-document.querySelector('.input-panel').appendChild(modelMenu);
+document.body.appendChild(modelMenu);
 
 modelIsland.addEventListener('click', (e) => {
     e.stopPropagation();
     const rect = modelIsland.getBoundingClientRect();
     modelMenu.style.left = `${rect.left}px`;
+    modelMenu.style.width = `${rect.width}px`;
     modelMenu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
     modelMenu.classList.toggle('visible');
 });
@@ -83,59 +79,155 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- Обработка ввода ---
+function toggleSidebar() {
+    const isOpen = chatsSidebar.classList.contains('open');
+    if (isOpen) {
+        chatsSidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('visible');
+    } else {
+        chatsSidebar.classList.add('open');
+        sidebarOverlay.classList.add('visible');
+        loadChats(); 
+    }
+}
+chatsBtn.addEventListener('click', toggleSidebar);
+closeChatsBtn.addEventListener('click', toggleSidebar);
+sidebarOverlay.addEventListener('click', toggleSidebar);
+
+async function loadChats() {
+    chatsList.innerHTML = '<div class="loading-dots" style="margin: 20px auto;"><span></span><span></span><span></span></div>';
+    try {
+        const res = await fetch('/api/chats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
+            })
+        });
+        if (!res.ok) throw new Error('Ошибка загрузки');
+        const data = await res.json();
+        chatsList.innerHTML = '';
+        
+        // Кнопка нового чата
+        const newChatBtn = document.createElement('div');
+        newChatBtn.className = 'chat-item';
+        newChatBtn.style.border = '1px dashed var(--primary)';
+        newChatBtn.textContent = '+ Создать новый чат';
+        newChatBtn.addEventListener('click', () => {
+            currentChatId = null;
+            chatContainer.innerHTML = ''; // Очищаем экран
+            chatContainer.appendChild(greeting);
+            greeting.classList.remove('hidden');
+            toggleSidebar();
+        });
+        chatsList.appendChild(newChatBtn);
+
+        if (data.chats && data.chats.length > 0) {
+            data.chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                item.textContent = chat.title || `Чат #${chat.id}`;
+                item.addEventListener('click', () => {
+                    loadChatHistory(chat.id);
+                    toggleSidebar();
+                });
+                chatsList.appendChild(item);
+            });
+        }
+    } catch (e) {
+        chatsList.innerHTML = `<div style="text-align:center; color:#ff4444; padding: 20px;">Ошибка: ${e.message}</div>`;
+    }
+}
+
+async function loadChatHistory(chatId) {
+    currentChatId = chatId;
+    chatContainer.innerHTML = ''; 
+    greeting.classList.add('hidden');
+
+    try {
+        const res = await fetch(`/api/messages/${chatId}`);
+        const data = await res.json();
+        data.messages.forEach(msg => {
+            if (msg.role !== 'system') addMessage(msg.content, msg.role === 'user');
+        });
+    } catch (e) {
+        console.error("Ошибка загрузки истории", e);
+    }
+}
+
+enhanceBtn.addEventListener('click', async () => {
+    const query = queryInput.value.trim();
+    if (!query) return;
+
+    const originalIcon = enhanceBtn.innerHTML;
+    enhanceBtn.innerHTML = '<div class="loading-dots" style="transform: scale(0.6);"><span></span><span></span><span></span></div>';
+    enhanceBtn.disabled = true;
+
+    try {
+        const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: currentModel,
+                query: `Улучши промпт. Выведи ТОЛЬКО текст:\n\n${query}`,
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
+                is_system_action: true // Флаг, чтобы бэкенд не сохранял это в историю
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.answer) {
+            queryInput.value = data.answer.trim();
+            autoResizeTextarea();
+        }
+    } catch (e) {
+        console.error('Ошибка сети:', e);
+    } finally {
+        enhanceBtn.innerHTML = originalIcon;
+        enhanceBtn.disabled = false;
+    }
+});
+
 const autoResizeTextarea = () => {
     queryInput.style.height = 'auto';
     queryInput.style.height = queryInput.scrollHeight + 'px';
 };
-
 queryInput.addEventListener('input', autoResizeTextarea);
 
-// --- Логика сообщений и формул ---
-
-// 1. Защита формул от Markdown парсера
 function escapeMath(text) {
     const mathStore = [];
-    
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
         const id = `__MATH_BLOCK_${mathStore.length}__`;
         mathStore.push({ id, content: `$$${content}$$` });
         return id;
     });
-
     text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
         const id = `__MATH_BLOCK_${mathStore.length}__`;
-        mathStore.push({ id, content: `$$${content}$$` }); 
+        mathStore.push({ id, content: `$$${content}$$` });
         return id;
     });
-
     text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
         const id = `__MATH_INLINE_${mathStore.length}__`;
         mathStore.push({ id, content: `\\(${content}\\)` });
         return id;
     });
-    
     text = text.replace(/(?<!\\)\$([^\$\n]+?)(?<!\\)\$/g, (match, content) => {
         const id = `__MATH_INLINE_${mathStore.length}__`;
         mathStore.push({ id, content: `$${content}$` });
         return id;
     });
-
     return { text, mathStore };
 }
 
-// 2. Восстановление формул
 function unescapeMath(html, mathStore) {
-    mathStore.forEach(item => {
-        html = html.replace(item.id, item.content);
-    });
+    mathStore.forEach(item => { html = html.replace(item.id, item.content); });
     return html;
 }
 
 function addMessage(text, isUser = false) {
-    // Жесткая защита от undefined
+    // БРОНЯ ОТ UNDEFINED
     if (text === undefined || text === null) {
-        text = "⚠️ Ошибка: получен пустой ответ. Проверьте логи бэкенда.";
+        text = "⚠️ Ошибка: получен пустой ответ от сервера.";
     }
     if (typeof text !== 'string') {
         text = JSON.stringify(text);
@@ -158,16 +250,13 @@ function addMessage(text, isUser = false) {
     }
 
     chatContainer.appendChild(div);
-    
     if (!isUser && window.MathJax) {
         MathJax.typesetPromise([div]).catch(err => console.log('MathJax Error:', err));
     }
-
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// --- Отправка запроса ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -178,7 +267,7 @@ async function sendRequest() {
 
     addMessage(query, true);
     queryInput.value = '';
-    queryInput.style.height = 'auto'; 
+    queryInput.style.height = 'auto';
     queryInput.focus();
 
     const loadingDiv = document.createElement('div');
@@ -188,13 +277,14 @@ async function sendRequest() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const res = await fetch('https://xui-ai.ru.tuna.am/api/ask', {
+        const res = await fetch('/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: currentModel,
-                query: query, // Отправляем правильный ключ для бэкенда
-                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
+                query: query,
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
+                chat_id: currentChatId // Отправляем ID текущего чата
             })
         });
 
@@ -202,24 +292,19 @@ async function sendRequest() {
         const data = await res.json();
 
         if (res.ok) {
-            if (data.error) {
-                addMessage(`Ошибка сервера: ${data.error}`);
-            } else {
-                addMessage(data.answer);
-            }
+            // Если это был первый вопрос, бэкенд вернет новый chat_id
+            if (data.chat_id) currentChatId = data.chat_id;
+            addMessage(data.answer);
         } else {
-            addMessage(`Ошибка: ${data.error || JSON.stringify(data.detail) || 'Не удалось получить ответ'}`);
+            addMessage(`Ошибка: ${data.error || 'Не удалось получить ответ'}`);
         }
-
     } catch (e) {
         if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
         addMessage(`Ошибка сети: ${e.message}`);
     }
 }
 
-// События
 sendBtn.addEventListener('click', sendRequest);
-
 queryInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();

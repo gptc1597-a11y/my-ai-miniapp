@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>AI Neural Core</title>
     <link rel="stylesheet" href="style.css">
-    <script src="/static/script.js?v=3"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <!-- MathJax Config -->
     <script>
@@ -35,6 +35,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Chats Sidebar -->
+    <div class="chats-sidebar" id="chatsSidebar">
+        <div class="chats-header">
+            <h3>История чатов</h3>
+            <button id="closeChatsBtn" class="close-btn" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="chats-list" id="chatsList"></div>
+    </div>
+
     <div class="app">
         <main class="chat" id="chatContainer">
             <div class="greeting-container" id="greeting">
@@ -52,6 +66,11 @@
 
         <div class="input-panel">
             <div class="input-controls">
+                <button class="icon-btn" id="chatsBtn" type="button" aria-label="Чаты">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
                 <button class="model-trigger" id="modelIsland" type="button" aria-label="Выбор модели">
                     <span class="model-icon">
                         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -61,6 +80,11 @@
                         </svg>
                     </span>
                     <span class="model-name" id="currentModelLabel">Grok-4 Fast</span>
+                </button>
+                <button class="icon-btn" id="enhanceBtn" type="button" aria-label="Улучшить промпт" title="Автоулучшение промпта">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+                    </svg>
                 </button>
             </div>
 

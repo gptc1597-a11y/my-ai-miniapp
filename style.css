@@ -38,7 +38,7 @@ body {
 
 .app {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     height: 100%;
     position: relative;
     display: flex;
@@ -95,7 +95,7 @@ body {
 
 /* Messages */
 .message {
-    max-width: 88%;
+    max-width: min(88%, 800px);
     padding: 14px 18px;
     position: relative;
     font-size: 0.98rem;
@@ -190,9 +190,14 @@ mjx-container {
 
 .input-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 10px;
     align-items: center;
+    flex-wrap: nowrap;
     pointer-events: auto;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Model Selector */
@@ -201,22 +206,30 @@ mjx-container {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 6px 12px;
-    border-radius: 12px;
+    padding: 10px 16px;
+    border-radius: 14px;
     color: var(--text-main);
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 10px;
     cursor: pointer;
     transition: all 0.2s;
     pointer-events: auto;
+    flex: 1; /* Fill available space between buttons */
+    min-width: 0; /* Allow text truncation */
 }
 .model-trigger:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
-.model-icon { width: 16px; height: 16px; color: var(--text-muted); }
+.model-icon { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
 .model-icon svg { width: 100%; height: 100%; }
+.model-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /* Input Shell */
 .input-shell {
@@ -231,6 +244,9 @@ mjx-container {
     align-items: flex-end;
     transition: border-color 0.2s, background 0.2s;
     pointer-events: auto;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 .input-shell:focus-within {
     border-color: rgba(255, 255, 255, 0.2);
@@ -287,7 +303,6 @@ mjx-container {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 6px;
-    min-width: 200px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     display: none;
     flex-direction: column;
@@ -316,6 +331,118 @@ mjx-container {
 /* ИЗМЕНЕНО: Цвет подсветки активного пункта */
 .model-menu-item.active { background: rgba(45, 156, 219, 0.1); color: var(--primary); font-weight: 600; }
 
+/* Icon Button */
+.icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px;
+    border-radius: 14px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+.icon-btn svg { width: 20px !important; height: 20px !important; }
+.icon-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255,255,255,0.15); }
+.icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Sidebar & Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.sidebar-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.chats-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100%;
+    background: rgba(13, 14, 16, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    transition: left 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+.chats-sidebar.open {
+    left: 0;
+}
+.chats-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+.chats-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.close-btn svg { width: 100%; height: 100%; }
+.chats-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.chat-item {
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    border: 1px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.chat-item:hover {
+    background: rgba(255,255,255,0.06);
+}
+.chat-item.active {
+    background: var(--primary-dim);
+    border-color: rgba(45, 156, 219, 0.3);
+    color: var(--primary);
+}
+
 /* Animations */
 /* ИЗМЕНЕНО: Анимация пульсации под новый цвет */
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(45, 156, 219, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(45, 156, 219, 0); } 100% { box-shadow: 0 0 0 0 rgba(45, 156, 219, 0); } }
@@ -325,6 +452,5 @@ mjx-container {
 @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
 
 @media (min-width: 600px) {
-    .app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-    .input-panel { padding: 16px 24px; border-radius: 0 0 20px 20px; }
+    .input-panel { padding: 16px 24px; }
 }
