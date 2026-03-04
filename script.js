@@ -32,7 +32,7 @@ const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 // !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!
-const TUNA_URL = "http://xui-ai.ru.tuna.am";
+const TUNA_URL = "https://xui-ai.ru.tuna.am";
 
 // Читаем параметр ?bot= из ссылки (если его нет, считаем, что это студент)
 const urlParams = new URLSearchParams(window.location.search);
