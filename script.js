@@ -32,7 +32,7 @@ const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 // !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!
-const TUNA_URL = "https://xui-ai.ru.tuna.am";
+const TUNA_URL = "http://xui-ai.ru.tuna.am";
 
 // Читаем параметр ?bot= из ссылки (если его нет, считаем, что это студент)
 const urlParams = new URLSearchParams(window.location.search);
@@ -44,15 +44,15 @@ if (typeof marked !== 'undefined') {
     marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
 }
 
+// --- Обновленный список моделей ---
 const models = [
-    { id: "gpt-5-chat-latest", label: "GPT-5 Chat" },
-    { id: "gpt-5-thinking-all", label: "GPT-5 Thinking" },
-    { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-    { id: "grok-4-fast", label: "Grok-4 Fast" },
-    { id: "grok-4", label: "Grok-4" },
-    { id: "claude-sonnet-4-5-20250929", label: "Claude Sonnet" }
+    { id: "gpt-5.2", label: "GPT 5. 2." },
+    { id: "claude-sonnet-4-6", label: "Claude Sonnet 4. 6." },
+    { id: "gemini-3-flash-preview", label: "Gemini 3 Flash" },
+    { id: "gemini-3-pro-preview", label: "Gemini 3 Pro" },
+    { id: "grok-4", label: "Grok 4" }
 ];
-let currentModel = "grok-4-fast";
+let currentModel = "gpt-5.2";
 
 const modelMenu = document.createElement('div');
 modelMenu.className = 'model-menu';
@@ -120,7 +120,7 @@ async function loadChats() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
-                bot_type: currentBotType // Передаем тип бота
+                bot_type: currentBotType 
             })
         });
         const data = await res.json();
@@ -169,7 +169,6 @@ async function loadChatHistory(chatId) {
     } catch (e) { console.error(e); }
 }
 
-// --- Автоулучшение промпта (FORMDATA + БОТ ТИП) ---
 enhanceBtn.addEventListener('click', async () => {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -247,7 +246,6 @@ function addMessage(text, isUser = false) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// --- Логика прикрепления файлов ---
 const attachBtn = document.getElementById('attachBtn');
 const fileInput = document.getElementById('fileInput');
 let selectedFile = null;
@@ -267,7 +265,6 @@ if (attachBtn && fileInput) {
     });
 }
 
-// --- Отправка запроса с файлами (FORMDATA + БОТ ТИП) ---
 async function sendRequest() {
     const query = queryInput.value.trim();
     if (!query && !selectedFile) return; 
