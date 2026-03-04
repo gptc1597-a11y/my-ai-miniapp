@@ -32,7 +32,11 @@ const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 // !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!!
-const TUNA_URL = "https://xui-ai.ru.tuna.am";
+const TUNA_URL = "https://ТВОЙ_АДРЕС_ИЗ_ТЮНЫ.ru.tuna.am";
+
+// Читаем параметр ?bot= из ссылки (если его нет, считаем, что это студент)
+const urlParams = new URLSearchParams(window.location.search);
+const currentBotType = urlParams.get('bot') || 'student';
 
 let currentChatId = null; 
 
@@ -115,7 +119,8 @@ async function loadChats() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345
+                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
+                bot_type: currentBotType // Передаем тип бота
             })
         });
         const data = await res.json();
@@ -156,7 +161,7 @@ async function loadChatHistory(chatId) {
     chatContainer.innerHTML = ''; 
     greeting.classList.add('hidden');
     try {
-        const res = await fetch(`${TUNA_URL}/api/messages/${chatId}`);
+        const res = await fetch(`${TUNA_URL}/api/messages/${chatId}?bot_type=${currentBotType}`);
         const data = await res.json();
         data.messages.forEach(msg => {
             if (msg.role !== 'system') addMessage(msg.content, msg.role === 'user');
@@ -164,7 +169,7 @@ async function loadChatHistory(chatId) {
     } catch (e) { console.error(e); }
 }
 
-// --- ИСПРАВЛЕННАЯ КНОПКА УЛУЧШЕНИЯ ---
+// --- Автоулучшение промпта (FORMDATA + БОТ ТИП) ---
 enhanceBtn.addEventListener('click', async () => {
     const query = queryInput.value.trim();
     if (!query) return;
@@ -173,26 +178,30 @@ enhanceBtn.addEventListener('click', async () => {
     enhanceBtn.innerHTML = '<div class="loading-dots" style="transform: scale(0.6);"><span></span><span></span><span></span></div>';
     enhanceBtn.disabled = true;
 
+    const formData = new FormData();
+    formData.append('model', currentModel);
+    formData.append('query', `Улучши промпт. Выведи ТОЛЬКО текст:\n\n${query}`);
+    formData.append('user_id', window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345);
+    formData.append('bot_type', currentBotType);
+    formData.append('is_system_action', true);
+
     try {
         const res = await fetch(`${TUNA_URL}/api/ask`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: currentModel,
-                query: `Улучши промпт. Выведи ТОЛЬКО текст:\n\n${query}`,
-                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
-                is_system_action: true 
-            })
+            body: formData
         });
 
         const data = await res.json();
-        if (res.ok && data.answer) {
+        
+        if (data.error) {
+            console.error(`Ошибка от сервера: ${data.error}`);
+            queryInput.value = query; 
+        } else if (res.ok && data.answer) {
             queryInput.value = data.answer.trim();
-            queryInput.style.height = 'auto';
-            queryInput.style.height = queryInput.scrollHeight + 'px';
+            autoResizeTextarea();
         }
     } catch (e) {
-        console.error('Ошибка кнопки улучшения:', e);
+        console.error('Ошибка сети при улучшении промпта:', e);
     } finally {
         enhanceBtn.innerHTML = originalIcon;
         enhanceBtn.disabled = false;
@@ -238,37 +247,74 @@ function addMessage(text, isUser = false) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+// --- Логика прикрепления файлов ---
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+let selectedFile = null;
+
+if (attachBtn && fileInput) {
+    attachBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        selectedFile = e.target.files[0];
+        if (selectedFile) {
+            attachBtn.style.color = 'var(--primary)';
+            queryInput.placeholder = `Файл: ${selectedFile.name}`;
+        } else {
+            attachBtn.style.color = 'var(--text-muted)';
+            queryInput.placeholder = "Введите запрос...";
+        }
+    });
+}
+
+// --- Отправка запроса с файлами (FORMDATA + БОТ ТИП) ---
 async function sendRequest() {
     const query = queryInput.value.trim();
-    if (!query) return;
+    if (!query && !selectedFile) return; 
+
     if (!greeting.classList.contains('hidden')) greeting.classList.add('hidden');
-    addMessage(query, true);
+    
+    const displayQuery = selectedFile ? query + `\n📎 [${selectedFile.name}]` : query;
+    addMessage(displayQuery, true);
+    
     queryInput.value = '';
     queryInput.style.height = 'auto';
+    queryInput.placeholder = "Введите запрос...";
 
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'message assistant';
     loadingDiv.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
     chatContainer.appendChild(loadingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    const formData = new FormData();
+    formData.append('model', currentModel);
+    formData.append('query', query || "Опиши этот файл"); 
+    formData.append('user_id', window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345);
+    formData.append('bot_type', currentBotType);
+    if (currentChatId) formData.append('chat_id', currentChatId);
+    if (selectedFile) formData.append('file', selectedFile);
 
     try {
         const res = await fetch(`${TUNA_URL}/api/ask`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: currentModel,
-                query: query,
-                user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345,
-                chat_id: currentChatId 
-            })
+            body: formData
         });
+
+        selectedFile = null;
+        if (fileInput) fileInput.value = '';
+        if (attachBtn) attachBtn.style.color = 'var(--text-muted)';
+
         chatContainer.removeChild(loadingDiv);
         const data = await res.json();
-        if (res.ok) {
+
+        if (data.error) {
+            addMessage(`⚠️ Ошибка от сервера: ${data.error}`);
+        } else if (res.ok && data.answer) {
             if (data.chat_id) currentChatId = data.chat_id;
             addMessage(data.answer);
         } else {
-            addMessage(`Ошибка: ${data.error}`);
+            addMessage(`⚠️ Неизвестная ошибка: ответ не получен.`);
         }
     } catch (e) {
         if (loadingDiv.parentNode) chatContainer.removeChild(loadingDiv);
