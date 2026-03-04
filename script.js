@@ -31,8 +31,8 @@ const closeChatsBtn = document.getElementById('closeChatsBtn');
 const chatsList = document.getElementById('chatsList');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-// !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!!
-const TUNA_URL = "https://ТВОЙ_АДРЕС_ИЗ_ТЮНЫ.ru.tuna.am";
+// !!! ЗАМЕНИ ЭТОТ АДРЕС НА СВОЙ !!
+const TUNA_URL = "http://xui-ai.ru.tuna.am";
 
 // Читаем параметр ?bot= из ссылки (если его нет, считаем, что это студент)
 const urlParams = new URLSearchParams(window.location.search);
