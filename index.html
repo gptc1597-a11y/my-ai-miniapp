@@ -49,7 +49,6 @@
         </div>
 
         <div class="input-panel">
-            
             <div class="input-controls">
                 <button id="chatsBtn" class="icon-btn" aria-label="Чаты">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -79,24 +78,8 @@
                 </button>
             </div>
 
-            <div id="filePreviewContainer" style="display: none; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 8px 12px; margin: 0 auto; width: 100%; max-width: 800px; pointer-events: auto; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
-                <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; flex-shrink: 0;">
-                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                        <polyline points="13 2 13 9 20 9"></polyline>
-                    </svg>
-                    <span id="filePreviewName" style="font-size: 0.9rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Имя файла</span>
-                </div>
-                <button id="removeFileBtn" type="button" aria-label="Удалить файл" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; outline: none; margin: 0;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
             <div class="input-shell">
-                <button id="attachBtn" type="button" aria-label="Прикрепить файл" style="position: absolute; left: 8px; bottom: 12px; width: 36px; height: 36px; margin: 0; padding: 0; border: none; background: transparent; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: var(--text-muted); outline: none;">
+                <button id="attachBtn" type="button" aria-label="Прикрепить файл" style="position: absolute; left: 6px; bottom: 6px; width: 36px; height: 36px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: var(--text-muted);">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
                         <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                     </svg>
@@ -115,7 +98,6 @@
                     </svg>
                 </button>
             </div>
-            
         </div>
     </div>
 
