@@ -314,10 +314,21 @@ if (attachBtn && fileInput) {
     attachBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
-        window.selectedFiles = Array.from(e.target.files);
+        const newFiles = Array.from(e.target.files);
+        
+        // Аккуратно добавляем новые файлы, не удаляя старые (и проверяем на дубликаты по имени)
+        newFiles.forEach(newFile => {
+            if (!window.selectedFiles.some(f => f.name === newFile.name)) {
+                window.selectedFiles.push(newFile);
+            }
+        });
+
         queryInput.value = '';
         queryInput.placeholder = "Введите запрос...";
         updateFilePreview();
+        
+        // Сбрасываем системный инпут, чтобы можно было заново выбрать тот же файл, если ты его удалил крестиком
+        fileInput.value = '';
     });
 }
 
