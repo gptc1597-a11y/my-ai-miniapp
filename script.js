@@ -246,32 +246,89 @@ function addMessage(text, isUser = false) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+// --- ЛОГИКА ПРИКРЕПЛЕНИЯ ФАЙЛОВ (ПЛИТКИ) ---
 const attachBtn = document.getElementById('attachBtn');
 const fileInput = document.getElementById('fileInput');
-let selectedFile = null;
+const filePreviewContainer = document.getElementById('filePreviewContainer');
+window.selectedFiles = [];
+
+function truncateFileName(fileName, maxLength = 16) {
+    if (fileName.length <= maxLength) return fileName;
+    const extIndex = fileName.lastIndexOf('.');
+    if (extIndex !== -1 && fileName.length - extIndex <= 6) {
+        const ext = fileName.substring(extIndex);
+        const name = fileName.substring(0, extIndex);
+        return name.substring(0, maxLength - 6) + '...' + ext;
+    }
+    return fileName.substring(0, maxLength) + '...';
+}
+
+function updateFilePreview() {
+    if (!filePreviewContainer) return;
+    filePreviewContainer.innerHTML = '';
+    
+    if (window.selectedFiles.length === 0) {
+        filePreviewContainer.style.display = 'none';
+        if (attachBtn) attachBtn.style.color = 'var(--text-muted)';
+        return;
+    }
+
+    filePreviewContainer.style.display = 'flex';
+    if (attachBtn) attachBtn.style.color = 'var(--primary)';
+
+    window.selectedFiles.forEach((file, index) => {
+        const tile = document.createElement('div');
+        tile.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 6px 10px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); max-width: 160px; flex-shrink: 0; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        
+        const shortName = truncateFileName(file.name, 15);
+
+        tile.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;" title="${file.name}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; flex-shrink: 0; color: #fff;">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <span style="font-size: 0.8rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">${shortName}</span>
+            </div>
+            <button type="button" aria-label="Удалить" style="background: transparent; border: none; color: #888; cursor: pointer; padding: 2px; display: flex; align-items: center; justify-content: center; outline: none; margin-left: 2px; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+
+        tile.querySelector('button').addEventListener('click', () => {
+            window.selectedFiles.splice(index, 1);
+            const dt = new DataTransfer();
+            window.selectedFiles.forEach(f => dt.items.add(f));
+            if (fileInput) fileInput.files = dt.files;
+            updateFilePreview();
+        });
+
+        filePreviewContainer.appendChild(tile);
+    });
+}
 
 if (attachBtn && fileInput) {
     attachBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
-        selectedFile = e.target.files[0];
-        if (selectedFile) {
-            attachBtn.style.color = 'var(--primary)';
-            queryInput.placeholder = `Файл: ${selectedFile.name}`;
-        } else {
-            attachBtn.style.color = 'var(--text-muted)';
-            queryInput.placeholder = "Введите запрос...";
-        }
+        window.selectedFiles = Array.from(e.target.files);
+        queryInput.value = '';
+        queryInput.placeholder = "Введите запрос...";
+        updateFilePreview();
     });
 }
 
 async function sendRequest() {
     const query = queryInput.value.trim();
-    if (!query && !selectedFile) return; 
+    if (!query && window.selectedFiles.length === 0) return; 
 
     if (!greeting.classList.contains('hidden')) greeting.classList.add('hidden');
     
-    const displayQuery = selectedFile ? query + `\n📎 [${selectedFile.name}]` : query;
+    const fileNames = window.selectedFiles.map(f => f.name).join(', ');
+    const displayQuery = window.selectedFiles.length > 0 ? query + `\n📎 [${fileNames}]` : query;
     addMessage(displayQuery, true);
     
     queryInput.value = '';
@@ -286,11 +343,15 @@ async function sendRequest() {
 
     const formData = new FormData();
     formData.append('model', currentModel);
-    formData.append('query', query || "Опиши этот файл"); 
+    formData.append('query', query || "Опиши эти файлы"); 
     formData.append('user_id', window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 12345);
     formData.append('bot_type', currentBotType);
     if (currentChatId) formData.append('chat_id', currentChatId);
-    if (selectedFile) formData.append('file', selectedFile);
+    
+    if (window.selectedFiles.length > 0) {
+        // Пока отправляем только первый файл, чтобы не сломать бэкенд
+        formData.append('file', window.selectedFiles[0]);
+    }
 
     try {
         const res = await fetch(`${TUNA_URL}/api/ask`, {
@@ -298,9 +359,10 @@ async function sendRequest() {
             body: formData
         });
 
-        selectedFile = null;
+        // Очищаем карусель файлов после отправки
+        window.selectedFiles = [];
         if (fileInput) fileInput.value = '';
-        if (attachBtn) attachBtn.style.color = 'var(--text-muted)';
+        updateFilePreview();
 
         chatContainer.removeChild(loadingDiv);
         const data = await res.json();
